@@ -1,0 +1,45 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models",
+      "../node_modules/loopback-component-passport/lib/models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "ACL": {
+    "dataSource": "irdb",
+    "public": false
+  },
+  "device": {
+    "dataSource": "irdb",
+    "public": true
+  },
+  "message": {
+    "dataSource": "irdb",
+    "public": true
+  },
+  "accessToken": {
+    "dataSource": "irdb",
+    "public":true 
+  },
+  "UserCredential": {
+    "dataSource": "irdb",
+    "public": false
+  },
+  "UserIdentity": {
+    "dataSource": "irdb",
+    "public": false
+  },
+  "user": {
+    "dataSource": "irdb",
+    "public": true
+  }
+}

@@ -1,0 +1,44 @@
+extends ../layouts/layout
+
+block content
+  .row
+    .col-md-12
+      h2 Devices
+      div.panel-group#accordion
+      - for (var i = 0; i < deviceMessages.length; i++)
+        - deviceName = deviceMessages[i].deviceName
+        - deviceSerial = deviceMessages[i].deviceSerial
+        - messages = deviceMessages[i].messages
+        div.panel.panel-default
+          div.panel-heading
+            h4.panel-title
+              a(data-toggle="collapse", data-parent="#accordion", href="#collapse-" + i)
+                = deviceName + "  (serial: " + deviceSerial + ")"
+              - var klass = 'panel-collapse collapse'
+              - if (i == 0) klass += ' in'
+                div(class = klass, id = 'collapse-' + i)
+              p リモコンデータ
+              table.table.table-bordered.table-striped
+                tbody
+                - for ( var j = 0; j< messages.length; j++)
+                  tr
+                    td 
+                      = messages[j].name
+                    td 
+                      button.btn.btn-success.btn-sm(data-toggle="modal", data-target="#myModal")
+                        | Send
+                      button.btn.btn-default.btn-sm(data-toggle="modal", data-target="#myModal")
+                        | Edit
+                      button.btn.btn-danger.btn-sm(data-toggle="modal", data-target="#myModal")
+                        | Delete
+
+      div.modal.fade#myModal(aria-hidden="true")
+        div.modal-dialog
+          div.modal-content
+            div.modal-header
+              button.close(type="button", data-dismiss="modal") &times;
+              h4.modal-title Modal title
+            div.modal-body Modal body
+            div.modal-footer
+              button.btn.btn-default(type="button", data-dismiss="modal") Close
+              button.btn.btn-primary(type="button") Save changes 

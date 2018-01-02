@@ -1,0 +1,6 @@
+{
+  "memory": {
+    "name": "irdb",
+    "connector": "memory"
+  }
+}

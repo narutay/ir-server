@@ -1,0 +1,58 @@
+extends ../layouts/layout
+
+block content
+  .row
+    .col-md-12
+      .div.wrapper
+        .div.signin
+          h3.form-signin-heading Googleアカウントでログイン
+          hr.colorgraph
+          div.google-login
+            a(href="/auth/google")
+              img(src="/images/google-login-normal.png")
+          br
+          if (messages.error)
+            p
+              span(style="color:red")= messages.error
+  style.
+    .google-login{
+      background: url('/images/google-login-hover.png') no-repeat;
+      background-position: center center;
+      border: none;
+
+    }
+    .google-login a{
+      display: block;
+    }
+    .google-login a{
+      display: block;
+    }
+    .google-login img{
+      display: block;
+      border: none;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .google-login a:hover{
+      background: none;
+    }
+    .google-login a:hover img{
+      visibility: hidden;
+    }
+
+    .wrapper {    
+    	margin-top: 80px;
+    }
+    
+    .signin {
+      max-width: 420px;
+      padding: 30px 38px 66px;
+      margin: 0 auto;
+      background-color: #fff;
+      border: 2px dotted rgba(0,0,0,0.1);  
+      }
+    
+    .signin-heading {
+      text-align:center;
+    }
+    
