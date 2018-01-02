@@ -1,12 +1,16 @@
 'use strict';
 
-var cfenv = require( 'cfenv' );
-var appEnv = cfenv.getAppEnv();
-var appService = appEnv.getService(cloudantNoSQLDB);
+var cloudant_url = '';
+if(process.env.VCAP_SERVICES) {
+	var services = JSON.parse(process.env.VCAP_SERVICES);
+	if(services.cloudantNoSQLDB) {
+		cloudant_url = services.cloudantNoSQLDB[0].credentials.url;
+	}
+};
 
 module.exports = {
   irdb: {
-    url: appService.url || 'localhost',
+    url: cloudant_url || 'localhost',
     database: 'irdb',
     name: 'irdb',
     modelIndex: "",
