@@ -1,5 +1,14 @@
 'use strict';
 
+var applicationRoute;
+if (process.env.VCAP_APPLICATION ){
+  var vcapApplications = JSON.parse(process.env.VCAP_APPLICATION);
+  applicationRoute = vcapApplications.application_uris[0];
+  console.log("applicationRoute=" + applicationRoute);
+}else{
+    applicationRoute= "localhost";
+};
+
 module.exports = {
   "google-login": {
     provider: "google",
@@ -7,7 +16,7 @@ module.exports = {
     strategy: "OAuth2Strategy",
     clientID: process.env.GOOGLE_CLIENT_ID || "YOUR_CLIENT_ID",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || "YOUR_CLIENT_SECRET",
-    callbackURL: "/auth/google/callback",
+    callbackURL: "https://" + applicationRoute + "/auth/google/callback",
     authPath: "/auth/google",
     callbackPath: "/auth/google/callback",
     successRedirect: "/",
