@@ -12,7 +12,7 @@
       "required": true
     },
     "data": {
-      "type": "array",
+      "type": "string",
       "required": true
     }
   },

@@ -15,9 +15,10 @@ module.exports = function(message) {
   message.disableRemoteMethodByName('replaceById');
   message.disableRemoteMethodByName('replaceOrCreate');
   message.disableRemoteMethodByName('resetPassword');
-  message.disableRemoteMethodByName('updateAll');
-  message.disableRemoteMethodByName('updateAttributes');
+  //message.disableRemoteMethodByName('updateAll');
+  //message.disableRemoteMethodByName('updateAttributes');
   message.disableRemoteMethodByName('upsert');
   message.disableRemoteMethodByName('upsertWithWhere');
   message.disableRemoteMethodByName('findOne');
+
 };

@@ -1,5 +1,7 @@
 'use strict';
 
+var request = require('request');
+
 module.exports = function(device) {
   var debug = require('debug')('irserver:device')
   var _ = require('lodash');
@@ -22,8 +24,8 @@ module.exports = function(device) {
   device.disableRemoteMethodByName('upsert');
   device.disableRemoteMethodByName('upsertWithWhere');
   device.disableRemoteMethodByName('findOne');
-  device.disableRemoteMethodByName('updateAll');
-  device.disableRemoteMethodByName('updateAttributes');
+  //device.disableRemoteMethodByName('updateAll');
+  //device.disableRemoteMethodByName('updateAttributes');
 
   device.disableRemoteMethodByName('prototype.__destroyById__events');
   device.disableRemoteMethodByName('prototype.__updateById__events');
@@ -59,5 +61,57 @@ module.exports = function(device) {
       };
     }
     next();
+  });
+
+  function sendMessageToDevice(deviceId, messageData){
+    var app = device.app;
+    var iotUrl = app.get('iotUrl');
+    var iotKey = app.get('iotKey');
+    var iotToken = app.get('iotToken');
+    var auth = 'Basic ' + new Buffer(iotKey + ':' + iotToken).toString('base64');
+    var postUrl = iotUrl + '/api/v0002/application/types/edison/devices/' + deviceId + '/commands/send'
+
+    var postData = {
+      "ir_data": messageData
+    };
+    
+    let postDataStr = JSON.stringify(postData);
+    let options = {
+        url: postUrl,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth
+        },
+        body: JSON.stringify(postData)
+    };
+
+    request.post(options, function(err, response, body){
+      if(err){
+        return next({message: 'Internal Server Error', statusCode: 500});
+        console.log(body);
+      }
+    });
+  }
+
+  device.send = function(id, data, cb) {
+    var messageData = data.data;
+    sendMessageToDevice(id, messageData);
+    var result = {
+      deviceId: id,
+      messageData: messageData
+    };
+    cb(null, result);
+  }
+
+  device.remoteMethod('send', {
+    accepts: [
+      { arg: 'id', type: 'string' },
+      { arg: 'data',
+        type: 'object',
+        http: { source: 'body' }}
+    ],
+    http: {path: '/:id/send', verb: 'post'},
+    returns: {type: 'array', root: true}
   });
 };

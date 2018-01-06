@@ -26,15 +26,13 @@ module.exports = function(app) {
         //デバイス一覧に紐づくメッセージデータを全て取得する
         var deviceMessages = [];
         async.each(devices, function(device, callback){
-          deviceId = device.id;
-          deviceSerial = device.serial;
-          deviceName = device.name;
-          var messageFilter = { where: { deviceId: deviceId }};
+          var messageFilter = { where: { deviceId: device.id }};
           app.models.message.find(messageFilter, function(err, messages) {
-            dm = { deviceId: deviceId,
-                   deviceSerial: deviceSerial,
-                   deviceName: deviceName,
-                   messages: messages
+            var dm = {
+              deviceId: device.id,
+              deviceSerial: device.serial,
+              deviceName: device.name,
+              messages: messages
             };
             debug("deviceMessage: %s ", JSON.stringify(dm));
             deviceMessages.push(dm);

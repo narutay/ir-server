@@ -4,41 +4,57 @@ block content
   .row
     .col-md-12
       h2 Devices
-      div.panel-group#accordion
-      - for (var i = 0; i < deviceMessages.length; i++)
-        - deviceName = deviceMessages[i].deviceName
-        - deviceSerial = deviceMessages[i].deviceSerial
-        - messages = deviceMessages[i].messages
-        div.panel.panel-default
-          div.panel-heading
-            h4.panel-title
-              a(data-toggle="collapse", data-parent="#accordion", href="#collapse-" + i)
-                = deviceName + "  (serial: " + deviceSerial + ")"
-              - var klass = 'panel-collapse collapse'
-              - if (i == 0) klass += ' in'
-                div(class = klass, id = 'collapse-' + i)
-              p リモコンデータ
-              table.table.table-bordered.table-striped
-                tbody
-                - for ( var j = 0; j< messages.length; j++)
-                  tr
-                    td 
-                      = messages[j].name
-                    td 
-                      button.btn.btn-success.btn-sm(data-toggle="modal", data-target="#myModal")
-                        | Send
-                      button.btn.btn-default.btn-sm(data-toggle="modal", data-target="#myModal")
-                        | Edit
-                      button.btn.btn-danger.btn-sm(data-toggle="modal", data-target="#myModal")
-                        | Delete
+      div.panel-group#deviceList
+        - for (var i = 0; i < deviceMessages.length; i++) {
+          - var deviceName = deviceMessages[i].deviceName
+          - var deviceId = deviceMessages[i].deviceId
+          - var deviceSerial = deviceMessages[i].deviceSerial
+          - var messages = deviceMessages[i].messages
+          div.panel.panel-primary
+            div.panel-heading
+              h4.panel-title
+                a(data-toggle="collapse", data-parent="#deviceList", href="#collapse-" + i)
+                  = deviceName + "  (serial: " + deviceSerial + ")"
+            - var klass = 'panel-collapse collapse'
+            - if (i == 0) klass += ' in'
+            div(class = klass, id = 'collapse-' + i)
+              div.panel-body
+                p リモコンデータ
+                table.table.table-bordered.table-striped(id="table-deviceid-" + deviceId)
+                  - for ( var j = 0; j< messages.length; j++) {
+                    - var messageId = messages[j].id
+                    - var messageData = messages[j].data
+                    tr
+                      td(id="td-messageid-" + messageId)
+                        = messages[j].name
+                      td 
+                        button.btn.btn-success.btn-sm(typ="button", onClick="sendMessage('" + deviceId + "', '" + messageData + "')")
+                          | Send
+                        button.btn.btn-default.btn-sm(data-toggle="modal", data-deviceid=deviceId, data-messageid=messageId, data-target="#editMessageNameModal")
+                          | Edit
+                        button.btn.btn-danger.btn-sm(data-toggle="modal", data-target="#myModal")
+                          | Delete
+                  - }
+        - }
+      hr.colorgraph
 
-      div.modal.fade#myModal(aria-hidden="true")
+      div.modal.fade#sendMessageModal(aria-hidden="true")
+        div.modal-dialog
+          div.modal-content
+            div.modal-body 送信が完了しました
+            div.modal-footer
+              button.btn.btn-default(type="button", data-dismiss="modal") 閉じる
+
+      div.modal.fade#editMessageNameModal(aria-hidden="true")
         div.modal-dialog
           div.modal-content
             div.modal-header
-              button.close(type="button", data-dismiss="modal") &times;
-              h4.modal-title Modal title
-            div.modal-body Modal body
+              h4.modal-title リモコンデータ名の編集
+            div.modal-body
+              div.form-group
+                lavel 名前
+                input.form-control(type='text', name='Name', id='newMessageName')
             div.modal-footer
-              button.btn.btn-default(type="button", data-dismiss="modal") Close
-              button.btn.btn-primary(type="button") Save changes 
+              button.btn.btn-default(type="button", data-dismiss="modal") キャンセル
+              button.btn.btn-primary(type="button", onClick='saveMessageName()') 保存
+
