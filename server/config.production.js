@@ -6,12 +6,12 @@ var iotUrl = 'http://localhost';
 
 if(process.env.VCAP_SERVICES) {
 	var services = JSON.parse(process.env.VCAP_SERVICES);
-	if(services.iotf-service) {
-		var iotHost = services.iotf-service[0].credentials.mqtt_host;
-    var iotPort = services.iotf-service[0].credentials.mqtt_s_port;
+	if(services["iotf-service"]) {
+		var iotHost = services["iotf-service"][0].credentials.mqtt_host;
+    var iotPort = services["iotf-service"][0].credentials.mqtt_s_port;
     iotUrl = 'https://' + iotHost + ':' + iotPort
-    iotKey = services.iotf-service[0].credentials.apiKey
-    iotToken = services.iotf-service[0].credentials.apiToken
+    iotKey = services["iotf-service"][0].credentials.apiKey
+    iotToken = services["iotf-service"][0].credentials.apiToken
 	}
 };
 
