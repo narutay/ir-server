@@ -11,10 +11,6 @@
     "name": {
       "type": "string",
       "required": true
-    },
-    "serial": {
-      "type": "string",
-      "required": true
     }
   },
   "validations": [],
@@ -23,26 +19,8 @@
       "type": "hasMany",
       "model": "message",
       "foreignKey": ""
-    },
-    "user": {
-      "type": "belongsTo",
-      "model": "user",
-      "foreignKey": "ownerId"
     }
   },
-  "acls": [
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "$everyone",
-      "permission": "DENY"
-    }
-  ],
+  "acls": [],
   "methods": {}
 }

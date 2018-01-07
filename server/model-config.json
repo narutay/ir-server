@@ -20,15 +20,15 @@
   },
   "device": {
     "dataSource": "irdb",
-    "public": true
+    "public": false
   },
   "message": {
     "dataSource": "irdb",
-    "public": true
+    "public": false
   },
   "accessToken": {
     "dataSource": "irdb",
-    "public":true 
+    "public": false
   },
   "UserCredential": {
     "dataSource": "irdb",
