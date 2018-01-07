@@ -2,7 +2,7 @@
 $(documentReady);
   
 function documentReady() {
-	//$.getJSON('../api/devices', getDevices);
+	//$.getJSON('../api/users/me/devices', getDevices);
 };
 
 var targetDeviceId;
@@ -18,7 +18,7 @@ function saveMessageName() {
   var name = $('#newMessageName').val();
   data = { name: name };
 
-  url = '/api/devices/' + targetDeviceId + '/messages/' + targetMessageId
+  url = '/api/users/me/devices/' + targetDeviceId + '/messages/' + targetMessageId
   request = $.ajax({url: url, type: 'PUT', data: data});
 
   request.done(function(msg) {
@@ -37,7 +37,7 @@ function saveMessageName() {
 }
 
 function sendMessage(targetDeviceId, targetMessageData) {
-  var sendUrl = '/api/devices/' + targetDeviceId  + '/send'
+  var sendUrl = '/api/users/me/devices/' + targetDeviceId  + '/send'
   console.log(sendUrl)
   request = $.ajax({url: sendUrl, type: 'POST', data: {data: targetMessageData}});
   request.done(function(msg) {

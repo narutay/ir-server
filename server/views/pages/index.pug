@@ -8,13 +8,12 @@ block content
         - for (var i = 0; i < deviceMessages.length; i++) {
           - var deviceName = deviceMessages[i].deviceName
           - var deviceId = deviceMessages[i].deviceId
-          - var deviceSerial = deviceMessages[i].deviceSerial
           - var messages = deviceMessages[i].messages
           div.panel.panel-primary
             div.panel-heading
               h4.panel-title
                 a(data-toggle="collapse", data-parent="#deviceList", href="#collapse-" + i)
-                  = deviceName + "  (serial: " + deviceSerial + ")"
+                  = deviceName + "  (serial: " + deviceId + ")"
             - var klass = 'panel-collapse collapse'
             - if (i == 0) klass += ' in'
             div(class = klass, id = 'collapse-' + i)

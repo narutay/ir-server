@@ -14,7 +14,7 @@ module.exports = function(app) {
       return next({message: 'Authorization Required', statusCode: 401});
     debug('Found accessToken: %s', req.accessToken.id);
 
-    var deviceFilter = { where: { ownerId: req.accessToken.userId }};
+    var deviceFilter = { where: { userId: req.accessToken.userId }};
     app.models.device.find(deviceFilter, function(err, devices) {
       if(err) {
         return next({message: 'Internal Server Error', statusCode: 500});

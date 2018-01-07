@@ -41,6 +41,7 @@ app.middleware('parse', bodyParser.urlencoded({
 // The access token is only available after boot
 app.middleware('auth', loopback.token({
   model: app.models.accessToken,
+  currentUserLiteral: 'me'
 }));
 
 app.middleware('session:before', cookieParser(app.get('cookieSecret')));
