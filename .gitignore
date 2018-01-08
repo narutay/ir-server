@@ -18,6 +18,7 @@ coverage
 node_modules
 npm-debug.log
 
+.vscode
 setenv.sh
 component-config.local.json
 config.local.js
