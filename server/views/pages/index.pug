@@ -3,7 +3,7 @@ extends ../layouts/layout
 block content
   .row
     .col-md-12
-      h2 Devices
+      h4 Devices
       div.panel-group#deviceList
         - for (var i = 0; i < deviceMessages.length; i++) {
           - var deviceName = deviceMessages[i].deviceName
@@ -35,7 +35,23 @@ block content
                           | Delete
                   - }
         - }
+
       hr.colorgraph
+
+      h4 デバイスの追加
+      div.form-group
+        input.form-control(type='text', name='Device Name', placeholder='デバイス名', id='newDeviceName')
+        br
+        input.form-control(type='text', name='Device Serial', placeholder='シリアル番号', id='newDeviceSerial')
+        br
+        button.btn.btn-primary(type="button", onClick='addDevice()') デバイスの追加
+  
+      div.modal.fade#addDeviceModal(aria-hidden="true")
+        div.modal-dialog
+          div.modal-content
+            div.modal-body デバイスの登録が完了しました。
+            div.modal-footer
+              button.btn.btn-default(type="button", data-dismiss="modal") 閉じる
 
       div.modal.fade#sendMessageModal(aria-hidden="true")
         div.modal-dialog
