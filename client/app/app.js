@@ -9,30 +9,56 @@ $('#editMessageNameModal').on('show.bs.modal', (event) => {
   targetMessageId = button.data('messageid');
 });
 
+$('#deleteMessageModal').on('show.bs.modal', (event) => {
+  const button = $(event.relatedTarget);
+  targetDeviceId = button.data('deviceid');
+  targetMessageId = button.data('messageid');
+});
+
 function saveMessageName() {
   const name = $('#newMessageName').val();
   const data = {name: name};
 
-  const url = `/api/users/me/devices/${targetDeviceId }` +
+  const url = `/api/users/me/devices/${targetDeviceId}` +
     `/messages/${targetMessageId}`;
   const request = $.ajax({url: url, type: 'PUT', data: data});
 
   request.done((msg) => {
     $(`#td-messageid-${targetMessageId}`).text(name);
     $('#editMessageNameModal').modal('hide');
-    targetDeviceId = null;
-    targetMessageId = null;
+    targetDeviceId = '';
+    targetMessageId = '';
   });
 
   request.fail((jqXHR, textStatus) => {
-    alert(`Request failed: ${ textStatus}`);
-    targetDeviceId = null;
-    targetMessageId = null;
+    alert(`Request failed: ${textStatus}`);
+    targetDeviceId = '';
+    targetMessageId = '';
+  });
+}
+
+function deleteMessage() {
+  const url = `/api/users/me/devices/${targetDeviceId}` +
+    `/messages/${targetMessageId}`;
+  const request = $.ajax({url: url, type: 'DELETE'});
+
+  request.done((msg) => {
+    const row = $(`#td-messageid-${targetMessageId}`).closest('tr');
+    $(row).remove();
+    $('#deleteMessageModal').modal('hide');
+    targetDeviceId = '';
+    targetMessageId = '';
+  });
+
+  request.fail((jqXHR, textStatus) => {
+    alert(`Delete message failed: ${textStatus}`);
+    targetDeviceId = '';
+    targetMessageId = '';
   });
 }
 
 function sendMessage(targetDeviceId, targetMessageData) {
-  const sendUrl = `/api/users/me/devices/${ targetDeviceId }/send`;
+  const sendUrl = `/api/users/me/devices/${targetDeviceId}/send`;
   const request = $.ajax({
     url: sendUrl,
     type: 'POST',
@@ -43,6 +69,6 @@ function sendMessage(targetDeviceId, targetMessageData) {
   });
 
   request.fail((jqXHR, textStatus) => {
-    alert(`Request failed: ${ textStatus}`);
+    alert(`Request failed: ${textStatus}`);
   });
 }
