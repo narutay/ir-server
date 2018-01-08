@@ -72,3 +72,25 @@ function sendMessage(targetDeviceId, targetMessageData) {
     alert(`Request failed: ${textStatus}`);
   });
 }
+
+function addDevice() {
+  const newDeviceName = $('#newDeviceName').val();
+  const newDeviceId = $('#newDeviceSerial').val();
+  const sendUrl = '/api/users/me/devices';
+  const request = $.ajax({
+    url: sendUrl,
+    type: 'POST',
+    data: {
+      id: newDeviceId,
+      name: newDeviceName,
+    },
+  });
+
+  request.done((msg) => {
+    $('#addDeviceModal').modal('show');
+  });
+
+  request.fail((jqXHR, textStatus) => {
+    alert(`Add Device is failed: ${textStatus}`);
+  });
+}
