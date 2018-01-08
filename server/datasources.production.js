@@ -1,22 +1,22 @@
 'use strict';
 
-var cloudant_url = '';
-if(process.env.VCAP_SERVICES) {
-	var services = JSON.parse(process.env.VCAP_SERVICES);
-	if(services.cloudantNoSQLDB) {
-		cloudant_url = services.cloudantNoSQLDB[0].credentials.url;
-	}
-};
+let cloudantUrl = '';
+if (process.env.VCAP_SERVICES) {
+  const services = JSON.parse(process.env.VCAP_SERVICES);
+  if (services.cloudantNoSQLDB) {
+    cloudantUrl = services.cloudantNoSQLDB[0].credentials.url;
+  }
+}
 
 module.exports = {
   irdb: {
-    url: cloudant_url || 'localhost',
+    url: cloudantUrl || 'localhost',
     database: 'irdb',
     name: 'irdb',
-    modelIndex: "",
+    modelIndex: '',
     connector: 'cloudant',
-    plugin: "retry",
+    plugin: 'retry',
     retryAttempts: 5,
-    retryTimeout: 1000
-  }
+    retryTimeout: 1000,
+  },
 };

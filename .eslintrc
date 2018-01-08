@@ -1,3 +1,40 @@
 {
-  "extends": "loopback"
+  "extends": ["eslint:recommended", "loopback"],
+  "plugins": ["node", "pug"],
+  "env": {
+      "es6": true,
+      "node": true,
+      "jquery": true
+  },
+  "rules": {
+      "prefer-const": "error",
+      "no-var": "error",
+      "prefer-arrow-callback": "error",
+      "prefer-template": "error",
+      "dot-location": "error",
+      "object-curly-spacing": "error",
+      "array-bracket-spacing": "error",
+      "no-const-assign": "error",
+      "block-scoped-var": "error",
+      "complexity": "error",
+      "no-implicit-coercion": "error",
+      "no-invalid-this": "error",
+      "no-loop-func": "error",
+      "no-multi-spaces": "error",
+      "no-new": "error",
+      "no-redeclare": "error",
+      "vars-on-top": "error",
+      "no-inner-declarations": "error",
+      "no-sparse-arrays": "error",
+      "node/exports-style": "error",
+      "node/no-deprecated-api": "error",
+      "node/no-missing-import": "error",
+      "node/no-missing-require": "error",
+      "node/no-unpublished-bin": "error",
+      "node/no-unpublished-import": "error",
+      "node/no-unpublished-require": "error",
+      "node/no-unsupported-features": "error",
+      "node/process-exit-as-throw": "error",
+      "node/shebang": "error"
+  }
 }

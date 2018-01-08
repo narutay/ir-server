@@ -1,51 +1,48 @@
+'use strict';
 
-$(documentReady);
-  
-function documentReady() {
-	//$.getJSON('../api/users/me/devices', getDevices);
-};
+let targetDeviceId = '';
+let targetMessageId = '';
 
-var targetDeviceId;
-var targetMessageId;
-
-$('#editMessageNameModal').on('show.bs.modal', function (event) {
-  var button = $(event.relatedTarget)
-  targetDeviceId = button.data('deviceid')
-  targetMessageId = button.data('messageid')
+$('#editMessageNameModal').on('show.bs.modal', (event) => {
+  const button = $(event.relatedTarget);
+  targetDeviceId = button.data('deviceid');
+  targetMessageId = button.data('messageid');
 });
 
 function saveMessageName() {
-  var name = $('#newMessageName').val();
-  data = { name: name };
+  const name = $('#newMessageName').val();
+  const data = {name: name};
 
-  url = '/api/users/me/devices/' + targetDeviceId + '/messages/' + targetMessageId
-  request = $.ajax({url: url, type: 'PUT', data: data});
+  const url = `/api/users/me/devices/${targetDeviceId }` +
+    `/messages/${targetMessageId}`;
+  const request = $.ajax({url: url, type: 'PUT', data: data});
 
-  request.done(function(msg) {
-    $('#td-messageid-' + targetMessageId).text(name);
+  request.done((msg) => {
+    $(`#td-messageid-${targetMessageId}`).text(name);
     $('#editMessageNameModal').modal('hide');
-    //window.location.href = "/";
     targetDeviceId = null;
     targetMessageId = null;
   });
 
-  request.fail(function(jqXHR, textStatus) {
-    alert( "Request failed: " + textStatus );
+  request.fail((jqXHR, textStatus) => {
+    alert(`Request failed: ${ textStatus}`);
     targetDeviceId = null;
     targetMessageId = null;
   });
 }
 
 function sendMessage(targetDeviceId, targetMessageData) {
-  var sendUrl = '/api/users/me/devices/' + targetDeviceId  + '/send'
-  console.log(sendUrl)
-  request = $.ajax({url: sendUrl, type: 'POST', data: {data: targetMessageData}});
-  request.done(function(msg) {
+  const sendUrl = `/api/users/me/devices/${ targetDeviceId }/send`;
+  const request = $.ajax({
+    url: sendUrl,
+    type: 'POST',
+    data: {data: targetMessageData},
+  });
+  request.done((msg) => {
     $('#sendMessageModal').modal('show');
   });
 
-  request.fail(function(jqXHR, textStatus) {
-    alert( "Request failed: " + textStatus );
+  request.fail((jqXHR, textStatus) => {
+    alert(`Request failed: ${ textStatus}`);
   });
 }
-
