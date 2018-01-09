@@ -19,6 +19,11 @@ $('#addDeviceModal').on('show.bs.modal', () => {
   window.location.href = '/';
 });
 
+$('#deleteDeviceModal').on('show.bs.modal', (event) => {
+  const button = $(event.relatedTarget);
+  targetDeviceId = button.data('deviceid');
+});
+
 function saveMessageName() {
   const name = $('#newMessageName').val();
   const data = {name: name};
@@ -58,6 +63,23 @@ function deleteMessage() {
     alert(`Delete message failed: ${textStatus}`);
     targetDeviceId = '';
     targetMessageId = '';
+  });
+}
+
+function deleteDevice() {
+  const url = `/api/users/me/devices/${targetDeviceId}`
+  const request = $.ajax({url: url, type: 'DELETE'});
+
+  request.done((msg) => {
+    const panel = $(`#panel-deviceid-${targetDeviceId}`);
+    $(panel).remove();
+    $('#deleteDeviceModal').modal('hide');
+    targetDeviceId = '';
+  });
+
+  request.fail((jqXHR, textStatus) => {
+    alert(`Delete device failed: ${textStatus}`);
+    targetDeviceId = '';
   });
 }
 
