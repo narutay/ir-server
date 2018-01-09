@@ -15,6 +15,10 @@ $('#deleteMessageModal').on('show.bs.modal', (event) => {
   targetMessageId = button.data('messageid');
 });
 
+$('#addDeviceModal').on('show.bs.modal', () => {
+  window.location.href = '/';
+});
+
 function saveMessageName() {
   const name = $('#newMessageName').val();
   const data = {name: name};
