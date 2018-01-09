@@ -9,7 +9,7 @@ block content
           - var deviceName = deviceMessages[i].deviceName
           - var deviceId = deviceMessages[i].deviceId
           - var messages = deviceMessages[i].messages
-          div.panel.panel-primary
+          div.panel.panel-primary(id='panel-deviceid-' + deviceId)
             div.panel-heading
               h4.panel-title
                 a(data-toggle="collapse", data-parent="#deviceList", href="#collapse-" + i)
@@ -34,6 +34,8 @@ block content
                         button.btn.btn-danger.btn-sm(data-toggle="modal", data-deviceid=deviceId, data-messageid=messageId, data-target="#deleteMessageModal")
                           | Delete
                   - }
+                hr
+                button.btn.btn-danger(data-toggle="modal", data-deviceid=deviceId, data-target="#deleteDeviceModal") デバイスの削除
         - }
 
       hr.colorgraph
@@ -67,6 +69,14 @@ block content
             div.modal-footer
               button.btn.btn-default(type="button", data-dismiss="modal") キャンセル
               button.btn.btn-danger(type="button", onClick='deleteMessage()') 削除
+
+      div.modal.fade#deleteDeviceModal(aria-hidden="true")
+        div.modal-dialog
+          div.modal-content
+            div.modal-body 本当にデバイスを削除しますか？
+            div.modal-footer
+              button.btn.btn-default(type="button", data-dismiss="modal") キャンセル
+              button.btn.btn-danger(type="button", onClick='deleteDevice()') 削除
 
       div.modal.fade#editMessageNameModal(aria-hidden="true")
         div.modal-dialog
