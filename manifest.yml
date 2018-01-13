@@ -1,0 +1,12 @@
+applications:
+- name: irserver
+  path: .
+  instances: 1
+  memory: 256M
+  buildpack: nodejs_buildpack
+  command: node .
+  domain: mybluemix.net
+  host: irserver
+  services:
+  - sv-cloudant
+  - sv-iot
