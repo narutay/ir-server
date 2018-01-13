@@ -11,7 +11,7 @@ if (process.env.VCAP_SERVICES) {
 module.exports = {
   irdb: {
     url: cloudantUrl || 'localhost',
-    database: 'irdb-prod',
+    database: 'irdb-dev',
     name: 'irdb',
     modelIndex: '',
     connector: 'cloudant',
