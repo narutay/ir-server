@@ -27,3 +27,6 @@ datasources.local.*
 middleware.local.*
 providers.local.*
 
+device
+test-data
+

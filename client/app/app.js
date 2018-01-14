@@ -99,6 +99,22 @@ function sendMessage(targetDeviceId, targetMessageData) {
   });
 }
 
+function recieveMessage(targetDeviceId) {
+  const sendUrl = `/api/users/me/devices/${targetDeviceId}/recieve`;
+  const request = $.ajax({
+    url: sendUrl,
+    type: 'POST',
+    data: {},
+  });
+  request.done((msg) => {
+    $('#recieveMessageModal').modal('show');
+  });
+
+  request.fail((jqXHR, textStatus) => {
+    alert(`Request failed: ${textStatus}`);
+  });
+}
+
 function addDevice() {
   const newDeviceName = $('#newDeviceName').val();
   const newDeviceId = $('#newDeviceSerial').val();

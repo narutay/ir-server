@@ -35,6 +35,8 @@ block content
                           | Delete
                   - }
                 hr
+                button.btn.btn-success(typ="button", onClick="recieveMessage('" + deviceId + "')") データの登録
+                hr
                 button.btn.btn-danger(data-toggle="modal", data-deviceid=deviceId, data-target="#deleteDeviceModal") デバイスの削除
         - }
 
@@ -59,6 +61,13 @@ block content
         div.modal-dialog
           div.modal-content
             div.modal-body 送信が完了しました
+            div.modal-footer
+              button.btn.btn-default(type="button", data-dismiss="modal") 閉じる
+
+      div.modal.fade#recieveMessageModal(aria-hidden="true")
+        div.modal-dialog
+          div.modal-content
+            div.modal-body データ登録を開始しました
             div.modal-footer
               button.btn.btn-default(type="button", data-dismiss="modal") 閉じる
 

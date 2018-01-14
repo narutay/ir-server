@@ -40,21 +40,21 @@ module.exports = function(user) {
   user.disableRemoteMethodByName('prototype.__updateById__accessTokens');
 
   user.send = function(id, nk, data, cb) {
-    const messageData = data.data;
     const app = user.app;
-    const iotUrl = app.get('iotUrl');
-    const iotKey = app.get('iotKey');
-    const iotToken = app.get('iotToken');
+    const iotUrl = `https://${app.get('iotCredentials').mqtt_host}:${app.get('iotCredentials').mqtt_s_port}`;
+    const iotKey = app.get('iotCredentials').apiKey;
+    const iotToken = app.get('iotCredentials').apiToken;
     const tokenBase64 = Buffer.from(`${iotKey}:${iotToken}`).toString('base64');
     const authHeader = `Basic ${tokenBase64}`;
     const postUrl = `${iotUrl}` +
       `/api/v0002/application/types/edison/devices/${nk}/commands/send`;
 
+    const messageData = data.data;
     const postData = {
       'ir_data': messageData,
     };
     const postDataStr = JSON.stringify(postData);
-    debug(`POST data: ${postDataStr}`);
+    debug(`Publish data: ${postDataStr}`);
 
     const options = {
       url: postUrl,
@@ -68,14 +68,14 @@ module.exports = function(user) {
 
     request.post(options, (err, response, body) => {
       if (err) {
-        debug('IoT POST is failed');
+        debug('Publish is failed');
         const newErr = new Error('Send IR message is failed');
         newErr.statusCode = 500;
         cb(newErr);
       } else {
-        debug('IoT POST is Success');
-        debug(`IoT POST Response code: ${response.statusCode}`);
-        debug(`IoT POST Response body: ${body}`);
+        debug('Publish is Success');
+        debug(`Publish Response code: ${response.statusCode}`);
+        debug(`Publish Response body: ${body}`);
         const result = {
           deviceId: nk,
           messageData: messageData,
@@ -95,5 +95,58 @@ module.exports = function(user) {
     ],
     returns: {type: 'object', root: true},
     http: {path: '/:id/devices/:nk/send', verb: 'post'},
+  });
+
+  user.recieve = function(id, nk, cb) {
+    const app = user.app;
+    const iotUrl = `https://${app.get('iotCredentials').mqtt_host}:${app.get('iotCredentials').mqtt_s_port}`;
+    const iotKey = app.get('iotCredentials').apiKey;
+    const iotToken = app.get('iotCredentials').apiToken;
+    const tokenBase64 = Buffer.from(`${iotKey}:${iotToken}`).toString('base64');
+    const authHeader = `Basic ${tokenBase64}`;
+    const postUrl = `${iotUrl}` +
+      `/api/v0002/application/types/edison/devices/${nk}/commands/read`;
+
+    const postData = {};
+    const postDataStr = JSON.stringify(postData);
+    debug(`Publish data: ${postDataStr}`);
+
+    const options = {
+      url: postUrl,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader,
+      },
+      body: postDataStr,
+    };
+
+    request.post(options, (err, response, body) => {
+      if (err) {
+        debug('Publish is failed');
+        const newErr = new Error('Send IR message is failed');
+        newErr.statusCode = 500;
+        cb(newErr);
+      } else {
+        debug('Publish is Success');
+        debug(`Publish Response code: ${response.statusCode}`);
+        debug(`Publish Response body: ${body}`);
+        debug('waiting for register massage.');
+
+        const result = {
+          deviceId: nk,
+        };
+        cb(null, result);
+      }
+    });
+  };
+
+  user.remoteMethod('recieve', {
+    accepts: [
+      {arg: 'id', type: 'string'},
+      {arg: 'nk', type: 'string'},
+    ],
+    returns: {type: 'object', root: true},
+    http: {path: '/:id/devices/:nk/recieve', verb: 'post'},
   });
 };
