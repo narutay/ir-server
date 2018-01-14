@@ -1,17 +1,18 @@
 'use strict';
 
-let iotKey = 'YOUR_IOT_KEY';
-let iotToken = 'YOUR_IOT_TOKEN';
-let iotUrl = 'http://localhost';
+let iotCredentials = {
+  apiKey: 'YOUR_API_KEY',
+  apiToken: 'YOUR_API_TOKEN',
+  iotCredentialsIdentifier: 'YOUR_ID',
+  org: 'YOUR_ORG',
+  mqtt_host: 'localhost',
+  mqtt_s_port: '3000',
+};
 
 if (process.env.VCAP_SERVICES) {
   const services = JSON.parse(process.env.VCAP_SERVICES);
   if (services['iotf-service']) {
-    const iotHost = services['iotf-service'][0].credentials.mqtt_host;
-    const iotPort = services['iotf-service'][0].credentials.mqtt_s_port;
-    iotUrl = `https://${iotHost }:${iotPort}`;
-    iotKey = services['iotf-service'][0].credentials.apiKey;
-    iotToken = services['iotf-service'][0].credentials.apiToken;
+    iotCredentials = services['iotf-service'][0].credentials;
   }
 }
 
@@ -21,9 +22,7 @@ module.exports = {
   restApiRoot: '/api',
   cookieSecret: process.env.COOKIE_SECRET || 'keyboard cat',
   sessionSecret: process.env.SESSION_SECRET || 'keyboard cat',
-  iotKey: iotKey,
-  iotToken: iotToken,
-  iotUrl: iotUrl,
+  iotCredentials: iotCredentials,
   remoting: {
     errorHandler: {
       disableStackTrace: true,
