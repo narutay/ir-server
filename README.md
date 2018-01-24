@@ -90,3 +90,4 @@
     $ URL=$(bx app env irserver | grep -e 'url.*cloudant.com' | sed -e 's/.*\(https:.*cloudant.com\).*/\1/')
     $ curl -X PUT ${URL}/irdb-dev
     $ curl -X PUT ${URL}/irdb-prod
+    
