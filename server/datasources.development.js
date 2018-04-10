@@ -1,22 +1,24 @@
 'use strict';
 
-let cloudantUrl = '';
+let dashdb = {};
 if (process.env.VCAP_SERVICES) {
   const services = JSON.parse(process.env.VCAP_SERVICES);
-  if (services.cloudantNoSQLDB) {
-    cloudantUrl = services.cloudantNoSQLDB[0].credentials.url;
+  if (services['dashDB For Transactions']) {
+    dashdb = services['dashDB For Transactions'][0].credentials;
   }
 }
 
 module.exports = {
   irdb: {
-    url: cloudantUrl || 'localhost',
-    database: 'irdb-dev',
     name: 'irdb',
-    modelIndex: '',
-    connector: 'cloudant',
-    plugin: 'retry',
-    retryAttempts: 5,
-    retryTimeout: 1000,
+    connector: 'dashdb',
+    hostname: dashdb.host || 'localhost',
+    port: dashdb.port || 50000,
+    username: dashdb.username || 'username',
+    password: dashdb.password || 'password',
+    database: dashdb.db || 'BLUDB',
+    schema: dashdb.username.toUpperCase() || 'SCHEMA',
+    maxPoolSize: 4,
+    supportDashDB: true,
   },
 };

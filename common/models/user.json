@@ -6,7 +6,37 @@
   "options": {
     "validateUpsert": true
   },
-  "properties": {},
+  "properties": {
+    "id": {
+      "type": "string",
+      "length": 36,
+      "defaultFn": "uuidv4",
+      "id": true
+    },
+    "realm": {
+      "type": "string",
+      "length": 128
+    },
+    "username": {
+      "type": "string",
+      "length": 128
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "length": 256
+    },
+    "email": {
+      "type": "string",
+      "required": true,
+      "length": 256
+    },
+    "emailVerified": "boolean",
+    "verificationToken": {
+      "type": "string",
+      "length": 128
+    }
+  },
   "validations": [],
   "relations": {
     "devices": {

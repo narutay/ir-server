@@ -7,13 +7,21 @@
     "validateUpsert": true
   },
   "properties": {
+    "id": {
+      "type": "string",
+      "length": 36,
+      "defaultFn": "uuidv4",
+      "id": true
+    },
     "name": {
       "type": "string",
-      "required": true
+      "required": true,
+      "length": 128
     },
     "data": {
-      "type": "string",
-      "required": true
+      "type": "Object",
+      "required": true,
+      "length": 8192
     }
   },
   "validations": [],

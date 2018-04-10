@@ -8,5 +8,5 @@ applications:
   domain: mybluemix.net
   host: irserver
   services:
-  - sv-cloudant
+  - sv-db2
   - sv-iot

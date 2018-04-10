@@ -18,14 +18,14 @@
 
     ターゲットのリソース・グループ Default
 
-                            
-    API エンドポイント:   https://api.ng.bluemix.net (API バージョン: 2.92.0)   
-    地域:               us-south   
-    ユーザー:             <メールアドレス>   
-    アカウント:          narutay Account (<accout_id>)   
-    リソース・グループ:    Default   
-    組織:                    
-    スペース:                
+
+    API エンドポイント:   https://api.ng.bluemix.net (API バージョン: 2.92.0)
+    地域:               us-south
+    ユーザー:             <メールアドレス>
+    アカウント:          narutay Account (<accout_id>)
+    リソース・グループ:    Default
+    組織:
+    スペース:
 
 ## 組織、スペースを設定する
 アカウント作成後、設定変更等していなければ対話は無く自動定義される。
@@ -33,19 +33,19 @@
     $ bx target --cf
     ターゲットの組織 <メールアドレス>
     ターゲットのスペース dev
-    
-    API エンドポイント:   https://api.ng.bluemix.net (API バージョン: 2.92.0)   
-    地域:               us-south   
-    ユーザー:             <メールアドレス>   
-    アカウント:          narutay Account (<accout_id>)   
-    リソース・グループ:    Default   
-    組織:                <メールアドレス>   
+
+    API エンドポイント:   https://api.ng.bluemix.net (API バージョン: 2.92.0)
+    地域:               us-south
+    ユーザー:             <メールアドレス>
+    アカウント:          narutay Account (<accout_id>)
+    リソース・グループ:    Default
+    組織:                <メールアドレス>
     スペース:            dev
 
 ## サービスを作成する
-### Cloudant
+### Db2
 
-    $ bx service create cloudantNoSQLDB Lite sv-cloudant
+    $ bx service create "dashDB For Transactions" Lite sv-db2 -c '{"email": "<メールアドレス>"}'
     OK
 
 ### Internet of Things Platform
@@ -90,4 +90,4 @@
     $ URL=$(bx app env irserver | grep -e 'url.*cloudant.com' | sed -e 's/.*\(https:.*cloudant.com\).*/\1/')
     $ curl -X PUT ${URL}/irdb-dev
     $ curl -X PUT ${URL}/irdb-prod
-    
+
