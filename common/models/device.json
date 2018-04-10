@@ -11,11 +11,13 @@
     "id": {
       "type": "string",
       "id": true,
-      "required": true
+      "required": true,
+      "length": 128
     },
     "name": {
       "type": "string",
-      "required": true
+      "required": true,
+      "length": 128
     }
   },
   "validations": [],
@@ -23,7 +25,7 @@
     "messages": {
       "type": "hasMany",
       "model": "message",
-      "foreignKey": ""
+      "foreignKey": "deviceId"
     }
   },
   "acls": [],

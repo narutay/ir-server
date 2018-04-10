@@ -76,6 +76,25 @@ app.start = function() {
   });
 };
 
+// autoupdata ir db
+const ds = app.datasources.irdb;
+
+const lbTables1 = [
+  'user', 'accessToken', 'UserIdentity',
+];
+ds.autoupdate(lbTables1, (er) => {
+  if (er) throw er;
+  console.log(`Loopback tables [${ lbTables1 }] created in `, ds.adapter.name);
+});
+
+const lbTables2 = [
+  'UserCredential', 'ACL', 'device', 'message',
+];
+ds.autoupdate(lbTables2, (er) => {
+  if (er) throw er;
+  console.log(`Loopback tables [${ lbTables2 }] created in `, ds.adapter.name);
+});
+
 // start the server if `$ node server.js`
 if (require.main === module) {
   app.start();
