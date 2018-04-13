@@ -20,9 +20,9 @@ module.exports = {
     callbackURL: callbackUrl,
     authPath: '/auth/google',
     callbackPath: '/auth/google/callback',
-    successRedirect: '/',
-    failureRedirect: '/login',
     scope: ['email', 'profile'],
     failureFlash: true,
+    session: false,
+    json: true
   },
 };

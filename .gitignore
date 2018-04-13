@@ -23,10 +23,10 @@ setenv.sh
 component-config.local.*
 config.local.*
 datasources.local.*
-datasources.local.*
 middleware.local.*
 providers.local.*
 
 device
 test-data
+tmp
 
