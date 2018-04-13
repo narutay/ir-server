@@ -4,16 +4,6 @@ const loopback = require('loopback');
 const boot = require('loopback-boot');
 const app = module.exports = loopback();
 
-// Setup the view engine (pug)
-const path = require('path');
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-// for Passport login
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-
 // Passport configurations
 const loopbackPassport = require('loopback-component-passport');
 const PassportConfigurator = loopbackPassport.PassportConfigurator;
@@ -37,19 +27,6 @@ app.middleware('auth', loopback.token({
   currentUserLiteral: 'me',
 }));
 
-// to support JSON-encoded bodies
-app.middleware('parse', bodyParser.json());
-// to support URL-encoded bodies
-app.middleware('parse', bodyParser.urlencoded({
-  extended: true,
-}));
-
-app.middleware('session:before', cookieParser(app.get('cookieSecret')));
-app.middleware('session', session({
-  secret: app.get('sessionSecret'),
-  saveUninitialized: false,
-  resave: true,
-}));
 passportConfigurator.init();
 
 passportConfigurator.setupModels({
