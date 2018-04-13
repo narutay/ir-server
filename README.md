@@ -13,8 +13,7 @@
 
     アカウントを選択します (または Enter キーを押してスキップします):
     1. naruta's Account (<accound_id>)
-    数値を入力してください> 1
-    ターゲットのアカウント naruta's Account (<accound_id>)
+    数値を入力してください> 1 ターゲットのアカウント naruta's Account (<accound_id>)
 
     ターゲットのリソース・グループ Default
 
@@ -72,22 +71,10 @@
 
 ## デプロイ後作業
 
-デプロイしただけでは環境変数の設定やCloudantのDB作成が完了していないため、以下コマンドを実行する。
+デプロイしただけでは環境変数が完了していないため、以下コマンドを実行する。
 
 ### Googleの認証用トークンの登録
 
     $ bx app env-set irserver GOOGLE_CLIENT_ID <クライアントID>
     $ bx app env-set irserver GOOGLE_CLIENT_SECRET <クライアントシークレット>
-
-### Cookie Session用シークレットの登録
-
-    $ UUID=$(uuidgen)
-    $ bx app env-set irserver COOKIE_SECRET ${UUID}
-    $ bx app env-set irserver SESSION_SECRET ${UUID}
-
-### Cloudantのデータベース登録
-
-    $ URL=$(bx app env irserver | grep -e 'url.*cloudant.com' | sed -e 's/.*\(https:.*cloudant.com\).*/\1/')
-    $ curl -X PUT ${URL}/irdb-dev
-    $ curl -X PUT ${URL}/irdb-prod
-
+    $ bx app env-set irserver GOOGLE_CALLBACK_URL <コールバックURL>

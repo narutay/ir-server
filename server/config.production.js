@@ -1,12 +1,6 @@
 'use strict';
 
-const iotCredentials = {
-  org: process.env.IOT_ORG || 'YOUR_ORG',
-  id: process.env.IOT_ID || 'YOUR_ID',
-  apiKey: process.env.IOT_APIKEY || 'YOUR_API_KEY',
-  apiToken: process.env.IOT_APITOKEN || 'YOUR_API_TOKEN',
-};
-
+const iotCredentials = {};
 if (process.env.VCAP_SERVICES) {
   const services = JSON.parse(process.env.VCAP_SERVICES);
   if (services['iotf-service']) {
