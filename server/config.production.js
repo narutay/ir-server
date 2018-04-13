@@ -25,4 +25,9 @@ module.exports = {
   cookieSecret: process.env.COOKIE_SECRET || 'keyboard cat',
   sessionSecret: process.env.SESSION_SECRET || 'keyboard cat',
   iotCredentials: iotCredentials,
+  remoting: {
+    errorHandler: {
+      disableStackTrace: true,
+    },
+  },
 };
