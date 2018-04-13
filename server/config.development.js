@@ -1,10 +1,10 @@
 'use strict';
 
 const iotCredentials = {
-  org: process.env.IOT_ORG || 'YOUR_ORG',
-  id: process.env.IOT_ID || 'YOUR_ID',
-  apiKey: process.env.IOT_APIKEY || 'YOUR_API_KEY',
-  apiToken: process.env.IOT_APITOKEN || 'YOUR_API_TOKEN',
+  org: process.env.IOT_ORG || null,
+  id: process.env.IOT_ID || null,
+  apiKey: process.env.IOT_APIKEY || null,
+  apiToken: process.env.IOT_APITOKEN || null,
 };
 
 if (process.env.VCAP_SERVICES) {

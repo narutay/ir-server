@@ -8,7 +8,7 @@ module.exports = function(app) {
   const Client = require('ibmiotf');
   const iotCredentials = app.get('iotCredentials');
   let appClient = null;
-  if (iotCredentials) {
+  if (iotCredentials.org) {
     const appClientConfig = {
       'org': iotCredentials.org,
       'id': iotCredentials.id,
