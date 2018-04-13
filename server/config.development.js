@@ -1,18 +1,20 @@
 'use strict';
 
-let iotCredentials = {
-  apiKey: 'YOUR_API_KEY',
-  apiToken: 'YOUR_API_TOKEN',
-  iotCredentialsIdentifier: 'YOUR_ID',
-  org: 'YOUR_ORG',
-  mqtt_host: 'localhost',
-  mqtt_s_port: '3000',
+const iotCredentials = {
+  org: process.env.IOT_ORG || 'YOUR_ORG',
+  id: process.env.IOT_ID || 'YOUR_ID',
+  apiKey: process.env.IOT_APIKEY || 'YOUR_API_KEY',
+  apiToken: process.env.IOT_APITOKEN || 'YOUR_API_TOKEN',
 };
 
 if (process.env.VCAP_SERVICES) {
   const services = JSON.parse(process.env.VCAP_SERVICES);
   if (services['iotf-service']) {
-    iotCredentials = services['iotf-service'][0].credentials;
+    const credentials = services['iotf-service'][0].credentials;
+    iotCredentials.org = credentials.org;
+    iotCredentials.id = credentials.iotCredentialsIdentifier;
+    iotCredentials.apiKey = credentials.apiKey;
+    iotCredentials.apiToken = credentials.apiToken;
   }
 }
 

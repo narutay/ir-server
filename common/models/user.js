@@ -1,7 +1,5 @@
 'use strict';
 
-const request = require('request');
-
 module.exports = function(user) {
   const debug = require('debug')('irserver:user');
   // user.disableRemoteMethodByName('create');
@@ -39,50 +37,23 @@ module.exports = function(user) {
   user.disableRemoteMethodByName('prototype.__get__accessTokens');
   user.disableRemoteMethodByName('prototype.__updateById__accessTokens');
 
+  const deviceType = 'edison';
+
   user.send = function(id, nk, data, cb) {
     const app = user.app;
-    const iotUrl = `https://${app.get('iotCredentials').mqtt_host}:${app.get('iotCredentials').mqtt_s_port}`;
-    const iotKey = app.get('iotCredentials').apiKey;
-    const iotToken = app.get('iotCredentials').apiToken;
-    const tokenBase64 = Buffer.from(`${iotKey}:${iotToken}`).toString('base64');
-    const authHeader = `Basic ${tokenBase64}`;
-    const postUrl = `${iotUrl}` +
-      `/api/v0002/application/types/edison/devices/${nk}/commands/send`;
+    const appClient = require('../../server/boot/iotClient')(app).appClient;
 
     const messageData = data.data;
-    const postData = {
+    const publishData = JSON.stringify({
       'ir_data': messageData,
-    };
-    const postDataStr = JSON.stringify(postData);
-    debug(`Publish data: ${postDataStr}`);
-
-    const options = {
-      url: postUrl,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader,
-      },
-      body: postDataStr,
-    };
-
-    request.post(options, (err, response, body) => {
-      if (err) {
-        debug('Publish is failed');
-        const newErr = new Error('Send IR message is failed');
-        newErr.statusCode = 500;
-        cb(newErr);
-      } else {
-        debug('Publish is Success');
-        debug(`Publish Response code: ${response.statusCode}`);
-        debug(`Publish Response body: ${body}`);
-        const result = {
-          deviceId: nk,
-          messageData: messageData,
-        };
-        cb(null, result);
-      }
     });
+    debug(`command read Publish data: ${publishData}`);
+    appClient.publishDeviceCommand(deviceType, nk, 'send', 'json', publishData);
+    const result = {
+      deviceId: nk,
+      messageData: publishData,
+    };
+    cb(null, result);
   };
 
   user.remoteMethod('send', {
@@ -99,46 +70,12 @@ module.exports = function(user) {
 
   user.recieve = function(id, nk, cb) {
     const app = user.app;
-    const iotUrl = `https://${app.get('iotCredentials').mqtt_host}:${app.get('iotCredentials').mqtt_s_port}`;
-    const iotKey = app.get('iotCredentials').apiKey;
-    const iotToken = app.get('iotCredentials').apiToken;
-    const tokenBase64 = Buffer.from(`${iotKey}:${iotToken}`).toString('base64');
-    const authHeader = `Basic ${tokenBase64}`;
-    const postUrl = `${iotUrl}` +
-      `/api/v0002/application/types/edison/devices/${nk}/commands/read`;
+    const appClient = require('../../server/boot/iotClient')(app).appClient;
 
-    const postData = {};
-    const postDataStr = JSON.stringify(postData);
-    debug(`Publish data: ${postDataStr}`);
-
-    const options = {
-      url: postUrl,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader,
-      },
-      body: postDataStr,
-    };
-
-    request.post(options, (err, response, body) => {
-      if (err) {
-        debug('Publish is failed');
-        const newErr = new Error('Send IR message is failed');
-        newErr.statusCode = 500;
-        cb(newErr);
-      } else {
-        debug('Publish is Success');
-        debug(`Publish Response code: ${response.statusCode}`);
-        debug(`Publish Response body: ${body}`);
-        debug('waiting for register massage.');
-
-        const result = {
-          deviceId: nk,
-        };
-        cb(null, result);
-      }
-    });
+    const publishData = JSON.stringify({});
+    debug(`command send Publish data: ${publishData}`);
+    appClient.publishDeviceCommand(deviceType, nk, 'read', 'json', publishData);
+    cb(null);
   };
 
   user.remoteMethod('recieve', {
