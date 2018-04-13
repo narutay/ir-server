@@ -4,12 +4,6 @@
   "port": 3000,
   "cookieSecret": "keyboard cat",
   "sessionSecret": "keyboard cat",
-  "iotCledentials": {
-    "org": "YOUR_ORG",
-    "id": "YOUR_ID",
-    "apiKey": "YOUR_API_KEY",
-    "apiToken": "YOUR_API_TOKEN"
-  },
   "remoting": {
     "context": false,
     "rest": {
