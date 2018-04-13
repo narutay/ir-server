@@ -1,14 +1,6 @@
 'use strict';
 
-const dashdbConfig = {
-  hostname: process.env.DASHDB_HOSTNAME || 'DASHDB_HOSTNAME',
-  port: process.env.DASHDB_PORTNUM || 'DASHDB_PORTNUM',
-  username: process.env.DASHDB_USERNAME || 'DASHDB_USERNAME',
-  password: process.env.DASHDB_PASSWORD || 'DASHDB_PASSWORD',
-  database: process.env.DASHDB_DATABASE || 'BLUDB',
-  schema: process.env.DASHDB_SCHEMA || 'DASHDB_SCHEMA',
-};
-
+const dashdbConfig = {};
 if (process.env.VCAP_SERVICES) {
   const services = JSON.parse(process.env.VCAP_SERVICES);
   if (services['dashDB For Transactions']) {
