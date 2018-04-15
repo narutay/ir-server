@@ -8,7 +8,7 @@ module.exports = function(app) {
   const Client = require('ibmiotf');
   const iotCredentials = app.get('iotCredentials');
   let appClient = null;
-  if (iotCredentials.org) {
+  if (iotCredentials && iotCredentials.org) {
     const appClientConfig = {
       'org': iotCredentials.org,
       'id': iotCredentials.id,
@@ -50,8 +50,8 @@ module.exports = function(app) {
       });
     });
   } else {
-    // ibmiotfの接続情報がない場合、処理をスキップする
-    debug('iotCredentials is not configured. skip connect iot');
+    // ibmiotfの接続情報がない場合nullを返却する
+    debug('iotCredentials is not configured. attach null appClient');
   }
   return {
     appClient: appClient,
