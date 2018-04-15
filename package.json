@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node .",
-    "posttest": "npm run lint && nsp check"
+    "test": "NODE_ENV=test DEBUG='irserver*' nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -38,7 +38,9 @@
     "eslint-plugin-mocha": "^4.11.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-pug": "^1.1.1",
-    "nsp": "^2.1.0"
+    "mocha": "^5.1.0",
+    "nsp": "^2.1.0",
+    "nyc": "^11.6.0"
   },
   "repository": {
     "type": "",

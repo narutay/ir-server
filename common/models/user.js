@@ -38,22 +38,41 @@ module.exports = function(user) {
   user.disableRemoteMethodByName('prototype.__updateById__accessTokens');
 
   const deviceType = 'edison';
+  const qos = 0;
 
-  user.send = function(id, nk, data, cb) {
+  user.send = function(id, deviceId, data, cb) {
     const app = user.app;
     const appClient = require('../../server/boot/iotClient')(app).appClient;
+
+    // appClientが存在しない場合エラー
+    if (!appClient) {
+      debug('appClient is not attached');
+      const err = new Error('failed send message to device.');
+      err.status = 500;
+      return cb(err);
+    }
 
     const messageData = data.data;
     const publishData = JSON.stringify({
       'ir_data': messageData,
     });
-    debug(`command read Publish data: ${publishData}`);
-    appClient.publishDeviceCommand(deviceType, nk, 'send', 'json', publishData);
-    const result = {
-      deviceId: nk,
-      messageData: publishData,
-    };
-    cb(null, result);
+    debug(`publishing data: ${publishData} with command read, ` +
+      `deviceType:${deviceType}, deviceId:${deviceId}`);
+    appClient.publishDeviceCommand(deviceType, deviceId, 'send', 'json', publishData, qos, (err) => {
+      if (err) {
+        debug(`publish failed data: ${publishData} with command read, ` +
+          `deviceType:${deviceType}, deviceId:${deviceId}`);
+        err = new Error('failed send message to device.');
+        err.status = 500;
+        cb(err);
+      } else {
+        const result = {
+          deviceId: deviceId,
+          messageData: publishData,
+        };
+        cb(null, result);
+      }
+    });
   };
 
   user.remoteMethod('send', {

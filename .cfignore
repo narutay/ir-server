@@ -19,6 +19,7 @@ node_modules
 npm-debug.log
 
 .vscode
+.nyc_output
 setenv.sh
 component-config.local.*
 config.local.*
