@@ -10,9 +10,9 @@ module.exports = {
     callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/auth/google/callback',
     authPath: '/auth/google',
     callbackPath: '/auth/google/callback',
+    successRedirect: '/',
+    failureRedirect: '/login',
     scope: ['email', 'profile'],
     failureFlash: true,
-    session: false,
-    json: true,
   },
 };

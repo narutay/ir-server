@@ -2,6 +2,8 @@
   "restApiRoot": "/api",
   "host": "0.0.0.0",
   "port": 3000,
+  "cookieSecret": "keyboard cat",
+  "sessionSecret": "keyboard cat",
   "remoting": {
     "context": false,
     "rest": {

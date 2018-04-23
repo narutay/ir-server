@@ -1,0 +1,19 @@
+nav.navbar.navbar-expand-md.fixed-top.navbar-light.bg-light(role='navigation')
+  a.navbar-brand(href='/') IR Server
+  button.navbar-toggler.p-0.border-0(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+    span.navbar-toggler-icon
+  #navbar.navbar-collapse.collapse
+    if user
+      //- User *is* logged In
+      ul.nav.navbar-nav.navbar-right
+        li.nav-item(class=url=='/'?'active':undefined)
+          a.nav-link(href='/') Home
+        li.nav-item
+          a.nav-link(href='/logout') Log Out
+    else
+      //- User is *not* Logged In
+      ul.nav.navbar-nav.navbar-right
+        li.nav-item(class=url=='/'?'active':undefined)
+          a.nav-link(href='/') Home
+        li.nav-link(class=url=='/login'?'active':undefined)
+          a.nav-item(href='/login') Log in
