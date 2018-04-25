@@ -8,41 +8,6 @@ hr(style="margin-top: 50px;")
 script(src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous")
 script(src="https://unpkg.com/popper.js/dist/umd/popper.min.js")
 script(src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous")
-script(src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.js")
 script(src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.90/jsrender.min.js")
-
-script#deviceCardTemplate(type="text/x-jsrender")
-  .card.mt-2.mb-2
-    .card-header
-      .media.text-muted.d-flex.justify-content-between.align-items-center.w-100
-        .media.text-muted
-          i.material-icons.rounded settings_remote
-          strong.ml-3 {{:name}}
-        .dropdown
-          button.btn.bmd-btn-icon.dropdown-toggle(type="button" id="ddmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-            i.material-icons more_vert
-          .dropdown-menu.dropdown-menu-right(alia-labelledby="ddmenu")
-            button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:id}}", data-target="#editDeviceModal") 編集
-            button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:id}}", data-target="#deleteDeviceModal") 削除
-    .card-body
-      div(id="messageList-{{:id}}")
-      .mt-3.d-flex.flex-row-reverse
-        button.btn.btn-info.bmd-btn-fab.bmd-btn-fab-sm.pull-right(type="button", onClick="recieveMessage('{{:id}}')")
-          i.material-icons add
-
-script#messageCardTemplate(type="text/x-jsrender")
-  .media.text-muted.pt-1
-    .media-body.ml-3.border-bottom.boder-gray
-      .d-flex.justify-content-between.align-items-center.w-100
-        span(id="td-messageid-{{:id}}") {{:name}}
-        .media.text-muted.align-items-center
-          button.btn.btn-raised.btn-primary.ml-2.mr-2.pb-1.pt-1 送信
-          .dropdown
-            button.btn.bmd-btn-icon.dropdown-toggle(type="button" id="ddmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-              i.material-icons more_vert
-            .dropdown-menu.dropdown-menu-right(alia-labelledby="ddmenu")
-              button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#editMessageNameModal") 編集
-              button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#recieveMessageModal") 受信
-              button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#deleteMessageModal") 削除
-
-script(src='/app/app.js')
+script(src='/app/iao-alert.jquery.min.js')
+script(src='/app/common.js')
