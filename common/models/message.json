@@ -20,8 +20,14 @@
     },
     "data": {
       "type": "Object",
-      "required": true,
+      "required": false,
       "length": 8192
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "length": 36,
+      "default": "initialized"
     }
   },
   "validations": [],
