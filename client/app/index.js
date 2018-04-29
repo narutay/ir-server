@@ -39,26 +39,6 @@ const store = new Object;
 store.deviceList = [];
 store.messageList = {};
 
-//const pollingMessageStatus = setInterval(() => {
-//  if (!document.hidden) {
-//    const url = '/api/users/me/devices';
-//    $.ajax({
-//      url: url,
-//      type: 'GET',
-//      dataType: 'json',
-//      timeout: 10000,
-//      success: function(deviceList) {
-//        deviceList.forEach((device) => {
-//          store.upsertDeviceList(device);
-//        });
-//      },
-//    });
-//    console.log('polling deviceList');
-//  } else {
-//    console.log('skip polling');
-//  }
-//}, 20000);
-
 store.restoreDeviceList = function(deviceList) {
   this.deviceList = deviceList;
   loadDeviceTemplate(this.deviceList);
@@ -255,7 +235,7 @@ $('#receiveMessageModal').on('show.bs.modal', (event) => {
 });
 
 function sendMessage(deviceId, messageId) {
-  const ladda = Ladda.create(document.querySelector('#sendMessageButton'));
+  const ladda = Ladda.create(document.querySelector(`#send-btn-${messageId}`));
   ladda.start();
   ladda.isLoading();
   const sendUrl = `/api/users/me/devices/${deviceId}/send`;

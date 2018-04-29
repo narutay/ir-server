@@ -141,14 +141,13 @@ block scripts
       .media-body.pl-2.pt-2.pb-2.pr-0.border-bottom.boder-gray
         .d-flex.justify-content-between.align-items-center.w-100
           .media.text-muted.d-flex.justify-content-start.align-items-center.w-100
-            i.p-2.material-icons.rounded rss_feed
             span {{:name}}
           .media.text-muted.d-flex.justify-content-end.align-items-center
             div {{if status === "ready"}}
-              button.btn.btn-primary.btn-raised.send-btn.ladda-button#sendMessageButton(type="submit", data-style="slide-down", data-size="l", onClick="sendMessage('{{:deviceId}}', '{{:id}}')")
-                span.ladda-label.ml-5.mr-5 送信 {{/if}}
+              button.btn.btn-primary.btn-raised.send-btn.ladda-button(id="send-btn-{{:id}}", type="submit", data-style="slide-down", data-size="l", onClick="sendMessage('{{:deviceId}}', '{{:id}}')")
+                span.ladda-label 送信 {{/if}}
             div {{if status !== "ready"}}
-              button.btn.btn-raised.btn-secondary.receive-btn.btn-sm(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#receiveMessageModal") リモコンデータ登録 {{/if}}
+              button.btn.btn-raised.btn-secondary.receive-btn(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#receiveMessageModal") データ登録 {{/if}}
             .dropdown
               button.btn.bmd-btn-icon.dropdown-toggle.ml-2(type="button" id="ddmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
                 i.material-icons more_vert
