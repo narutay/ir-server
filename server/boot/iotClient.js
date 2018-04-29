@@ -87,6 +87,7 @@ module.exports = function(app) {
       'id': iotCredentials.id,
       'auth-key': iotCredentials.apiKey,
       'auth-token': iotCredentials.apiToken,
+      'type': 'shared',
     };
     const appClient = new Client.IotfApplication(appClientConfig);
 
