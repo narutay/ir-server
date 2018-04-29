@@ -18,6 +18,12 @@
       "type": "string",
       "required": true,
       "length": 128
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "unknown",
+      "length": 32
     }
   },
   "validations": [],

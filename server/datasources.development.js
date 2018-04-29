@@ -19,7 +19,7 @@ module.exports = {
     password: dashdbConfig.password || 'password',
     database: dashdbConfig.database || 'BLUDB',
     schema: dashdbConfig.username || 'SCHEMA',
-    maxPoolSize: 2,
+    maxPoolSize: 4,
     supportDashDB: true,
   },
 };

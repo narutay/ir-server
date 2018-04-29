@@ -37,41 +37,24 @@ module.exports = function(user) {
   user.disableRemoteMethodByName('prototype.__get__accessTokens');
   user.disableRemoteMethodByName('prototype.__updateById__accessTokens');
 
-  const deviceType = 'edison';
-  const qos = 0;
-
-  user.send = function(id, deviceId, data, cb) {
+  user.send = function(id, deviceId, messageId, next) {
     const app = user.app;
-    const appClient = require('../../server/boot/iotClient')(app).appClient;
-
-    // appClientが存在しない場合エラー
-    if (!appClient) {
-      debug('appClient is not attached');
-      const err = new Error('failed send message to device.');
-      err.status = 500;
-      return cb(err);
-    }
-
-    const messageData = data.data;
-    const publishData = JSON.stringify({
-      'ir_data': messageData,
-    });
-    debug(`publishing data: ${publishData} with command read, ` +
-      `deviceType:${deviceType}, deviceId:${deviceId}`);
-    appClient.publishDeviceCommand(deviceType, deviceId, 'send', 'json', publishData, qos, (err) => {
-      if (err) {
-        debug(`publish failed data: ${publishData} with command read, ` +
-          `deviceType:${deviceType}, deviceId:${deviceId}`);
-        err = new Error('failed send message to device.');
-        err.status = 500;
-        cb(err);
-      } else {
-        const result = {
-          deviceId: deviceId,
-          messageData: publishData,
-        };
-        cb(null, result);
+    const message = app.models.message;
+    message.findMessage(messageId, (err, result) =>{
+      if (err || result === null) {
+        return next(err);
       }
+
+      const appClient = app.get('iotAppClient');
+      const irData = result.data;
+      const data = JSON.stringify({irData: irData});
+      appClient.publishToDevice(deviceId, 'send', data, (err) => {
+        if (err) {
+          return next(err);
+        } else {
+          return next();
+        }
+      });
     });
   };
 
@@ -79,30 +62,9 @@ module.exports = function(user) {
     accepts: [
       {arg: 'id', type: 'string'},
       {arg: 'nk', type: 'string'},
-      {arg: 'data',
-        type: 'object',
-        http: {source: 'body'}},
+      {arg: 'messageId', type: 'string', required: true},
     ],
     returns: {type: 'object', root: true},
     http: {path: '/:id/devices/:nk/send', verb: 'post'},
-  });
-
-  user.recieve = function(id, nk, cb) {
-    const app = user.app;
-    const appClient = require('../../server/boot/iotClient')(app).appClient;
-
-    const publishData = JSON.stringify({});
-    debug(`command send Publish data: ${publishData}`);
-    appClient.publishDeviceCommand(deviceType, nk, 'read', 'json', publishData);
-    cb(null);
-  };
-
-  user.remoteMethod('recieve', {
-    accepts: [
-      {arg: 'id', type: 'string'},
-      {arg: 'nk', type: 'string'},
-    ],
-    returns: {type: 'object', root: true},
-    http: {path: '/:id/devices/:nk/recieve', verb: 'post'},
   });
 };

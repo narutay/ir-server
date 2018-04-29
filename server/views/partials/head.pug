@@ -14,6 +14,7 @@ head
   //- Styles
   link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
   link(rel='stylesheet', href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous")
+  link(rel='stylesheet', href="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.6/ladda-themeless.min.css")
   link(rel='stylesheet', href="/css/iao-alert.min.css")
   style.
     body {
@@ -26,7 +27,7 @@ head
 
     .text-white-50 { color: rgba(255, 255, 255, .5); }
 
-    .bg-teal { background-color: var(--teal); }
+    .bg-headmsg { background-color: #2a5c8e }
 
     .border-bottom { border-bottom: 1px solid #e5e5e5; }
 
@@ -35,3 +36,24 @@ head
     .lh-100 { line-height: 1; }
     .lh-125 { line-height: 1.25; }
     .lh-150 { line-height: 1.5; }
+
+    .send-btn {
+      display: inline-block;
+      margin: 0px;
+      border-radius: 25px;
+      width: 160px
+    }
+
+    .receive-btn {
+      display: inline-block;
+      margin: 0px;
+      width: 160px;
+    }
+
+    .status-green {
+      color: var(--green);
+    }
+
+    .status-red {
+      color: var(--danger);
+    }

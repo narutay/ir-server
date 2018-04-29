@@ -1,6 +1,6 @@
 'use strict';
 
-const server = require('./server');
+const app = require('./server');
 const async = require('async');
 const debug = require('debug')('irserver:db');
 
@@ -9,7 +9,7 @@ const tables = [
   'UserCredential', 'ACL', 'device', 'message',
 ];
 
-const ds = server.datasources.irdb;
+const ds = app.datasources.irdb;
 async.eachSeries(tables, (table, callback) => {
   debug(`Automigrate table [${table}]`, ds.adapter.name);
   ds.automigrate(table, (er) => {

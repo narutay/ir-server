@@ -7,13 +7,13 @@ nav.navbar.navbar-expand-md.fixed-top.navbar-light.bg-light(role='navigation')
       //- User *is* logged In
       ul.nav.navbar-nav.navbar-right
         li.nav-item(class=url=='/'?'active':undefined)
-          a.nav-link(href='/') Home
+          a.nav-link(href='/') ホーム
         li.nav-item
-          a.nav-link(href='/logout') Log Out
+          a.nav-link(href='/logout') サインアウト
     else
       //- User is *not* Logged In
       ul.nav.navbar-nav.navbar-right
         li.nav-item(class=url=='/'?'active':undefined)
-          a.nav-link(href='/') Home
+          a.nav-link(href='/') ホーム
         li.nav-link(class=url=='/login'?'active':undefined)
-          a.nav-item(href='/login') Log in
+          a.nav-item(href='/login') サインアウト
