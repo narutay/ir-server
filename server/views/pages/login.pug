@@ -2,9 +2,12 @@ extends ../layouts/layout
 
 block content
   main.container(role=main)
+    .p-3.my-3.text-muted.text-white-50.w-100.bg-headmsg.box-shadow.rounded
+      h6.mb-0.text-white IR Serverへようこそ！
+      p.text-white.small.card-text Googleアカウントでサインインしてください。
     div.my-3.p-3.bg-white.rounded.box-shadow
-      h6.border-bottom.border-gray.pb-2.mp-0 Sign in
-      div.google-login
+      h6.border-bottom.border-gray.pb-2.mp-0 サインイン
+      div.p-3.my-3.google-login
         a(href="/auth/google")
           img(src="/images/google-login-normal.png")
   style.

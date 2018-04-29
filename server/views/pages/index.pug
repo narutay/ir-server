@@ -2,18 +2,23 @@ extends ../layouts/layout
 
 block content
   main.container(role=main)
-  .d-flex.align-items-centr.p-3.my-3.text-white-50.bg-teal.rounded.box-shadow
-    .media.text-muted.d-flex.justify-content-between.align-items-center.w-100
-      h6.mb-0.text-white Control Your Device !
-      button.btn.btn-secondary.bmd-btn-fab.bmd-btn-fab-sm(type="button" data-toggle="modal" data-target="#addDeviceModal")
-        i.material-icons add
+  .p-3.my-3.text-muted.text-white-50.w-100.bg-headmsg.box-shadow.rounded
+    h6.mb-0.text-white 家中のリモコンを登録しよう！
+    p.text-white.small.card-text 持っている赤外線リモコンをデバイスに登録して、どこからでも操作することができます。
 
+  //デバイス一覧の挿入箇所
   div#deviceList(style="display: none;")
 
+  //デバイス追加ボタン
+  button.btn.btn-primary.btn-raised.small.d-flex.justify-content-center.align-items-center.p-1.my-1.text-white-50.rounded.box-shadow.w-100(type="button" data-toggle="modal" data-target="#addDeviceModal")
+    i.material-icons add
+    span 新規デバイスを追加
+
+  //各種モーダル
   .modal.fade#deleteMessageModal(aria-hidden="true")
     .modal-dialog
       .modal-content
-        .modal-body メッセージを削除しますか？
+        .modal-body リモコンデータを削除しますか？
         .modal-footer
           button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
           button.btn.btn-danger(type="button", onClick='deleteMessage()') 削除
@@ -25,6 +30,21 @@ block content
         .modal-footer
           button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
           button.btn.btn-danger(type="button", onClick='deleteDevice()') 削除
+
+  .modal.fade#editDeviceNameModal(aria-hidden="true" role="dialog" tabindex="-1")
+    .modal-dialog(role="document")
+      .modal-content
+        form(role="form" autocomplete="off")
+          .modal-header
+            h6.modal-title デバイス名の編集
+          .modal-body
+            .form-group
+              lavel.bmd-label-floating(for="editDeviceName") デバイス名
+              input.form-control#editDeviceName(type='text', name='Name' required)
+              span.bmd-help 任意のデバイス名。 例: リビング
+          .modal-footer
+            button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
+            button.btn.btn-primary(type="submit", disabled, onClick='updateDeviceName()') 更新
 
   .modal.fade#editMessageNameModal(aria-hidden="true" role="dialog" tabindex="-1")
     .modal-dialog(role="document")
@@ -65,29 +85,50 @@ block content
       .modal-content
         form(role="form" autocomplete="off")
           .modal-header
-            h6.modal-title メッセージの登録
+            h6.modal-title リモコンデータの登録
           .modal-body
               .form-group
-                lavel.bmd-label-floating(for="newMessageName") メッセージ名
+                lavel.bmd-label-floating(for="newMessageName") リモコンデータ名
                 input.form-control#newMessageName(type='text', name='Device Name' required)
-                span.bmd-help 任意のメッセージ名。例: エアコン暖房
+                span.bmd-help 任意のリモコンデータ名。例: エアコン暖房
           .modal-footer
             button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
             button.btn.btn-primary(type="submit", disabled, onClick='addMessage()') 追加
+
+  .modal.fade#receiveMessageModal(aria-hidden="true" role="dialog" tabindex="-1")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h6.modal-title リモコンデータの受信
+        .modal-body
+          p.modal-text.muted.small お手持ちのリモコンを用意してください。(登録開始)ボタンを押したら10秒以内にデバイスに向けてリモコン操作をしましょう。
+          .d-flex.justify-content-center.w-100
+            button.btn.btn-primary.btn-raised.btn-lg.ladda-button#receiveMessageButton(type="submit", data-style="slide-down", data-size="l" onClick='receiveMessageName()')
+              span.ladda-label.ml-5.mr-5 受信開始
+        .modal-footer
+          button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
 
 block scripts
   script#deviceCardTemplate(type="text/x-jsrender")
     .card.mt-2.mb-2(id="card-deviceid-{{:id}}")
       .card-header
         .media.text-muted.d-flex.justify-content-between.align-items-center.w-100
-          .media.text-muted
-            i.material-icons.rounded settings_remote
-            strong.ml-3 {{:name}}
+          .media.text-muted.align-items-center
+            i.p-2.material-icons.rounded settings_remote
+            .media.d-flex.flex-column.justify-content-between
+              strong.mt-4 {{:name}}
+                .media.d-flex.justify-content-start.ml-2 {{if status === "Connect"}}
+                  span.small.status-green ●
+                  span.small.ml-1 オンライン  {{/if}}
+                .media.d-flex.justify-content-start.ml-2 {{if status !== "Connect"}}
+                  span.small.status-red ●
+                  span.small.ml-1 オフライン  {{/if}}
           .dropdown
             button.btn.bmd-btn-icon.dropdown-toggle(type="button" id="ddmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
               i.material-icons more_vert
             .dropdown-menu.dropdown-menu-right(alia-labelledby="ddmenu")
-              button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:id}}", data-target="#editDeviceModal") 編集
+              button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:id}}", data-target="#editDeviceNameModal") 編集
+              button.dropdown-item.small(type="button", onClick="showDeviceInfo('{{:id}}')") デバイス情報
               button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:id}}", data-target="#deleteDeviceModal") 削除
       .card-body
         div(id="messageList-{{:id}}")
@@ -96,18 +137,27 @@ block scripts
             i.material-icons add
 
   script#messageCardTemplate(type="text/x-jsrender")
-    .media.text-muted.pt-1(id="mb-messageid-{{:id}}")
-      .media-body.ml-3.border-bottom.boder-gray
+    .media.text-muted(id="mb-messageid-{{:id}}")
+      .media-body.pl-2.pt-2.pb-2.pr-0.border-bottom.boder-gray
         .d-flex.justify-content-between.align-items-center.w-100
-          span {{:name}}
-          .media.text-muted.align-items-center
-            button.btn.btn-raised.btn-primary.ml-2.mr-2.pb-1.pt-1 送信
+          .media.text-muted.d-flex.justify-content-start.align-items-center.w-100
+            i.p-2.material-icons.rounded rss_feed
+            span {{:name}}
+          .media.text-muted.d-flex.justify-content-end.align-items-center
+            div {{if status === "ready"}}
+              button.btn.btn-primary.btn-raised.send-btn.ladda-button#sendMessageButton(type="submit", data-style="slide-down", data-size="l", onClick="sendMessage('{{:deviceId}}', '{{:id}}')")
+                span.ladda-label.ml-5.mr-5 送信 {{/if}}
+            div {{if status !== "ready"}}
+              button.btn.btn-raised.btn-secondary.receive-btn.btn-sm(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#receiveMessageModal") リモコンデータ登録 {{/if}}
             .dropdown
-              button.btn.bmd-btn-icon.dropdown-toggle(type="button" id="ddmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+              button.btn.bmd-btn-icon.dropdown-toggle.ml-2(type="button" id="ddmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
                 i.material-icons more_vert
               .dropdown-menu.dropdown-menu-right(alia-labelledby="ddmenu")
                 button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#editMessageNameModal") 編集
-                button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#recieveMessageModal") メッセージ登録
+                div {{if status === "ready"}}
+                  button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#receiveMessageModal") リモコンデータ再登録 {{/if}}
+                div {{if status !== "ready"}}
+                  button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#receiveMessageModal") リモコンデータ登録 {{/if}}
                 button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#deleteMessageModal") 削除
 
   script(src='/app/index.js')
