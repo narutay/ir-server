@@ -15,7 +15,10 @@ module.exports = function(app) {
     }
     debug('Found accessToken: %s', req.accessToken.id);
 
+    const messageClassDisplayName = app.get('messageClassDisplayName');
+
     res.render('pages/index', {
+      messageClassDisplayName: messageClassDisplayName,
       user: req.user,
       url: req.url,
     });
