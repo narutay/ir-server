@@ -48,8 +48,12 @@ app.middleware('session:before', cookieParser(app.get('cookieSecret')));
 app.middleware('session', session({
   secret: app.get('sessionSecret'),
   saveUninitialized: false,
-  resave: true,
-  maxage: 1000 * 60 * 60 * 24,
+  resave: false,
+  rolling: true,
+  cookie: {
+    secure: app.get('sessionSecure'),
+    maxAge: 1000 * 60 * 60 * 24 * 14, //14 days
+  },
 }));
 
 passportConfigurator.init();
