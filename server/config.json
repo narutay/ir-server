@@ -4,6 +4,7 @@
   "port": 3000,
   "cookieSecret": "keyboard cat",
   "sessionSecret": "keyboard cat",
+  "sessionSecure": false,
   "remoting": {
     "context": false,
     "rest": {

@@ -18,6 +18,9 @@ module.exports = {
   port: process.env.PORT || 3000,
   restApiRoot: '/api',
   iotCredentials: iotCredentials,
+  cookieSecret: process.env.COOKIE_SECRET || 'keyboard cat',
+  sessionSecret: process.env.SESSION_SECRET || 'keyboard cat',
+  sessionSecure: true,
   remoting: {
     errorHandler: {
       disableStackTrace: true,
