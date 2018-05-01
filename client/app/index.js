@@ -156,7 +156,8 @@ function loadMessageList(deviceId, cb) {
     dataType: 'json',
     url: `/api/users/me/devices/${deviceId}/messages?` +
       'filter[fields][id]=true&filter[fields][deviceId]=true' +
-      '&filter[fields][status]=true&filter[fields][name]=true`',
+      '&filter[fields][status]=true&filter[fields][name]=true' +
+      '&filter[order]=name ASC',
     timeout: 10000,
     success: function(messageList) {
       store.restoreMessageList(deviceId, messageList);
@@ -173,7 +174,7 @@ function loadDeviceList() {
   $.ajax({
     type: 'GET',
     dataType: 'json',
-    url: '/api/users/me/devices',
+    url: '/api/users/me/devices?filter[order]=name ASC',
     timeout: 10000,
     success: function(deviceList) {
       store.restoreDeviceList(deviceList);
@@ -434,7 +435,9 @@ function receiveMessageName() {
     const maxPollingCount = 5;
     const pollingMessageStatus = setInterval(() => {
       const url = `/api/users/me/devices/${deviceId}` +
-        `/messages/${messageId}?filter[fields][status]=true`;
+        `/messages/${messageId}?` +
+        'filter[fields][id]=true&filter[fields][deviceId]=true' +
+        '&filter[fields][status]=true&filter[fields][name]=true';
       const poll = $.ajax({
         url: url,
         type: 'GET',
