@@ -20,6 +20,20 @@ module.exports = function(message) {
     message: `status is allowed only ${allowedStatusEnum}`,
   });
 
+  function classValidator(err) {
+    const app = message.app;
+    const classDN = app.get('messageClassDisplayName');
+    const allowedClassEnum = Object.keys(classDN);
+    allowedClassEnum.push('');
+    if (!allowedClassEnum.includes(this.class)) {
+      err();
+    }
+  }
+
+  message.validate('class', classValidator, {
+    message: 'class is not allowed',
+  });
+
   message.findMessage = function(messageId, cb) {
     message.findById(messageId, (err, result) => {
       if (err || result === null) {
@@ -67,6 +81,9 @@ module.exports = function(message) {
   }
 
   message.observe('before save', (ctx, next) => {
+    if (ctx.isNewInstance && ctx.options.accessToken !== undefined) {
+      ctx.instance.userId = ctx.options.accessToken.userId;
+    }
     if (ctx.isNewInstance === undefined && ctx.data.status !== undefined) {
       const id = ctx.where.id;
       const newStatus = ctx.data.status;

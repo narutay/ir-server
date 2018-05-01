@@ -10,3 +10,4 @@ applications:
   services:
   - sv-db2
   - sv-iot
+  - sv-watson-nlc

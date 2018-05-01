@@ -52,6 +52,30 @@
     $ bx service create iotf-service iotf-service-free sv-iot
     OK
 
+### Watson Natural Language Classifier
+
+    $ bx service create natural_language_classifier standard sv-watson-nlc
+    OK
+
+## サービスを関連付けする
+
+    $ bx service bind irserver sv-db2
+    $ bx service bind irserver sv-iot
+    $ bx service bind irserver sv-watson-nlc
+
+## 環境変数の設定
+
+### Googleの認証用トークンの登録
+
+    $ bx app env-set irserver GOOGLE_CLIENT_ID <クライアントID>
+    $ bx app env-set irserver GOOGLE_CLIENT_SECRET <クライアントシークレット>
+    $ bx app env-set irserver GOOGLE_CALLBACK_URL <コールバックURL>
+
+### Cookie、Sessionシークレットの登録
+
+    $ bx app env-set irserver COOKIE_SECRET <任意の複雑な文字列>
+    $ bx app env-set irserver SESSION_SECRET <任意の複雑な文字列>
+
 ## サービスをデプロイする
 
     $ bx app push
@@ -68,13 +92,3 @@
 
         状態   開始日時                 CPU     メモリー             ディスク         詳細
     #0   実行   2018-01-13 09:08:36 AM   23.6%   256M の中の 126.1M   1G の中の 191M
-
-## デプロイ後作業
-
-デプロイしただけでは環境変数が完了していないため、以下コマンドを実行する。
-
-### Googleの認証用トークンの登録
-
-    $ bx app env-set irserver GOOGLE_CLIENT_ID <クライアントID>
-    $ bx app env-set irserver GOOGLE_CLIENT_SECRET <クライアントシークレット>
-    $ bx app env-set irserver GOOGLE_CALLBACK_URL <コールバックURL>

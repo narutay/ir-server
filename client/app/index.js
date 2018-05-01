@@ -1,10 +1,39 @@
 'use strict';
 
+const messageClassDisplayName = {
+  'ac_cool': '冷房',
+  'ac_warm': '暖房',
+  'ac_off': 'エアコン停止',
+  'ac_dehum': '除湿',
+  'light_off': 'ライトオフ',
+  'light_on': 'ライトオン',
+  'light_theater': 'シアターモード',
+  'tv_onoff': 'TV オン/オフ',
+  'tv_nhk': 'NHK',
+  'tv_etele': 'Eテレ',
+  'tv_ntv': '日本テレビ',
+  'tv_asahi': 'テレビ朝日',
+  'tv_tbs': 'TBS',
+  'tv_tokyo': 'テレビ東京',
+  'tv_fuji': 'フジテレビ',
+  'tv_volup': 'TV 音量UP',
+  'tv_voldown': 'TV 音量DOWN',
+  'tv_mute': 'TV 消音',
+  'tv_skip': 'TV スキップ',
+  'tv_stop': 'TV 停止',
+  'tv_back': 'TV 戻る',
+  'tv_start': 'TV 再生',
+  'tv_blue': 'TV 青',
+  'tv_red': 'TV 赤',
+  'tv_green': 'TV 緑',
+  'tv_yellow': 'TV 黄',
+};
+
 function alert(msg) {
   const options = {
     content: `エラー ： ${msg}`,
     style: 'snackbar',
-    timeout: 2000,
+    timeout: 3000,
   };
   $.snackbar(options);
 }
@@ -13,7 +42,7 @@ function info(msg) {
   const options = {
     content: msg,
     style: 'snackbar',
-    timeout: 2000,
+    timeout: 3000,
   };
   $.snackbar(options);
 }
@@ -32,7 +61,7 @@ $('form').on('input', function() {
 });
 
 function clearAllFormValues() {
-  $('input,textarea').val('');
+  $('input,textarea, select').val('');
 }
 
 const store = new Object;
@@ -133,18 +162,45 @@ function replaceDeviceTemplate(device) {
 }
 
 function loadMessageTemplate(deviceId, messageList) {
-  const messageTemplate = $.templates('#messageCardTemplate');
-  const messageOutput = messageTemplate.render(messageList);
-  $(`#messageList-${deviceId}`).html(messageOutput);
+  let itemsProcessed = 0;
+  messageList.forEach((message, index, array) => {
+    if (message.class) {
+      if (message.class === '') {
+        messageList[index].classDN = '';
+      } else {
+        messageList[index].classDN = messageClassDisplayName[message.class];
+      }
+    }
+    itemsProcessed++;
+    if (itemsProcessed === array.length) {
+      const messageTemplate = $.templates('#messageCardTemplate');
+      const messageOutput = messageTemplate.render(messageList);
+      $(`#messageList-${deviceId}`).html(messageOutput);
+    }
+  });
 }
 
 function appendMessageTemplate(deviceId, message) {
+  if (message.class) {
+    if (message.class === '') {
+      message.classDN = '';
+    } else {
+      message.classDN = messageClassDisplayName[message.class];
+    }
+  }
   const messageTemplate = $.templates('#messageCardTemplate');
   const messageOutput = messageTemplate.render(message);
   $(`#messageList-${deviceId}`).append(messageOutput);
 }
 
 function replaceMessageTemplate(deviceId, message) {
+  if (message.class) {
+    if (message.class === '') {
+      message.classDN = '';
+    } else {
+      message.classDN = messageClassDisplayName[message.class];
+    }
+  }
   const messageTemplate = $.templates('#messageCardTemplate');
   const messageOutput = messageTemplate.render(message);
   $(`#mb-messageid-${message.id}`).replaceWith(messageOutput);
@@ -157,6 +213,7 @@ function loadMessageList(deviceId, cb) {
     url: `/api/users/me/devices/${deviceId}/messages?` +
       'filter[fields][id]=true&filter[fields][deviceId]=true' +
       '&filter[fields][status]=true&filter[fields][name]=true' +
+      '&filter[fields][class]=true' +
       '&filter[order]=name ASC',
     timeout: 10000,
     success: function(messageList) {
@@ -210,12 +267,18 @@ $('#addMessageModal').on('show.bs.modal', (event) => {
 $('#editDeviceNameModal').on('show.bs.modal', (event) => {
   const button = $(event.relatedTarget);
   targetDeviceId = button.data('deviceid');
+  $('#editDeviceName').val(button.data('devicename'));
+  $('#editDeviceNameModal').find('.form-group').addClass('is-filled');
+  $('#deviceSerialText').text(`シリアル番号 ： ${targetDeviceId}`);
 });
 
 $('#editMessageNameModal').on('show.bs.modal', (event) => {
   const button = $(event.relatedTarget);
   targetDeviceId = button.data('deviceid');
   targetMessageId = button.data('messageid');
+  $('#editMessageName').val(button.data('messagename'));
+  $('#editMessageNameModal').find('.form-group').addClass('is-filled');
+  $('#editMessageClass').val(button.data('messageclass'));
 });
 
 $('#deleteMessageModal').on('show.bs.modal', (event) => {
@@ -308,13 +371,17 @@ function deleteDevice() {
 
 function addMessage() {
   const newMessageName = $('#newMessageName').val();
+  const newMessageClass = $('#newMessageClass').val();
+  const data = {
+    name: newMessageName,
+    class: newMessageClass,
+  };
+
   const sendUrl = `/api/users/me/devices/${targetDeviceId}/messages`;
   const request = $.ajax({
     url: sendUrl,
     type: 'POST',
-    data: {
-      name: newMessageName,
-    },
+    data: data,
     timeout: 10000,
   });
 
@@ -385,7 +452,11 @@ function updateDeviceName() {
 
 function updateMessageName() {
   const name = $('#editMessageName').val();
-  const data = {name: name};
+  const messageClass = $('#editMessageClass').val();
+  const data = {
+    name: name,
+    class: messageClass,
+  };
 
   const url = `/api/users/me/devices/${targetDeviceId}` +
     `/messages/${targetMessageId}`;
@@ -437,7 +508,8 @@ function receiveMessageName() {
       const url = `/api/users/me/devices/${deviceId}` +
         `/messages/${messageId}?` +
         'filter[fields][id]=true&filter[fields][deviceId]=true' +
-        '&filter[fields][status]=true&filter[fields][name]=true';
+        '&filter[fields][status]=true&filter[fields][name]=true' +
+        '&filter[fields][class]=true';
       const poll = $.ajax({
         url: url,
         type: 'GET',
@@ -500,4 +572,27 @@ function receiveMessageName() {
 
   targetDeviceId = '';
   targetMessageId = '';
+}
+
+function suggest() {
+  const text = $('#suggestText').val();
+  const data = {text: text};
+
+  const url = '/api/users/me/suggest';
+  const request = $.ajax({
+    url: url,
+    type: 'POST',
+    data: data,
+    timeout: 10000,
+  });
+
+  request.done((messages) => {
+    messages.forEach((message) => {
+      info(`提案によって${message.name}が送信されました`);
+    });
+  });
+
+  request.fail((jqXHR, textStatus) => {
+    alert('リモコンの提案に失敗しました');
+  });
 }
