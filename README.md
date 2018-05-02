@@ -57,11 +57,17 @@
     $ bx service create natural_language_classifier standard sv-watson-nlc
     OK
 
+### Watson Speech to text
+
+    $ bx service create speech_to_text lite sv-watson-stt
+    OK
+
 ## サービスを関連付けする
 
     $ bx service bind irserver sv-db2
     $ bx service bind irserver sv-iot
     $ bx service bind irserver sv-watson-nlc
+    $ bx service bind irserver sv-watson-stt
 
 ## 環境変数の設定
 

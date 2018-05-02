@@ -4,6 +4,7 @@ require('bootstrap-material-design');
 require('snackbarjs');
 require('jsrender');
 const Ladda = require('ladda');
+const recognizeMic = require('watson-speech/speech-to-text/recognize-microphone');
 
 const messageClassDisplayName = {
   'ac_cool': '冷房',
@@ -580,8 +581,16 @@ function receiveMessage() {
 }
 window.receiveMessage = receiveMessage;
 
+let suggestText = '';
+
 function suggest() {
-  const text = $('#suggestText').val();
+  const text = suggestText;
+
+  if (text === '') {
+    alert('音声が読み取れませんでした');
+    return;
+  }
+
   const data = {text: text};
 
   const url = '/api/users/me/suggest';
@@ -594,7 +603,7 @@ function suggest() {
 
   request.done((messages) => {
     messages.forEach((message) => {
-      info(`提案によって${message.name}が送信されました`);
+      info(`音声操作により${message.name}が送信されました`);
     });
   });
 
@@ -603,3 +612,58 @@ function suggest() {
   });
 }
 window.suggest = suggest;
+
+let stream;
+window.suggestStart = function() {
+  console.log('suggest start');
+  suggestText = '';
+  $('#suggestInfoText').text('準備中...');
+  $('#suggestText').text('');
+  $('#suggestModal').modal('show');
+  const url = '/api/users/me/suggestToken';
+  const request = $.ajax({
+    url: url,
+    type: 'GET',
+    timeout: 10000,
+  });
+
+  request.done((response) => {
+    if (response.token) {
+      const token = response.token;
+      console.log(`suggest token is ${token}`);
+      stream = recognizeMic({
+        token: token,
+        model: 'ja-JP_BroadbandModel',
+        outputElement: '#suggestText',
+      });
+      stream.on('error', (err) => {
+        closeSuggestModal();
+        alert('音声操作に失敗しました');
+        console.log(err);
+      });
+      $('#suggestInfoText').text('何をしますか？話しかけてください。');
+      $('#suggestInProgress').css('visibility', 'visible');
+    }
+  });
+
+  request.fail((jqXHR, textStatus) => {
+    alert('音声操作に失敗しました');
+  });
+};
+
+window.suggestStop = function() {
+  stream.stop();
+  setTimeout(() => {
+    console.log('suggest stop');
+    suggestText = $('#suggestText').text();
+    console.log(`speech text is ${suggestText}`);
+    $('#suggestText').text('');
+    suggest();
+    closeSuggestModal();
+  }, 2000);
+};
+
+function closeSuggestModal() {
+  $('#suggestModal').modal('hide');
+  $('#suggestInProgress').css('visibility', 'hidden');
+}
