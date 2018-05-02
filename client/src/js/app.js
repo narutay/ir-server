@@ -1,5 +1,10 @@
 'use strict';
 
+require('bootstrap-material-design');
+require('snackbarjs');
+require('jsrender');
+const Ladda = require('ladda');
+
 const messageClassDisplayName = {
   'ac_cool': '冷房',
   'ac_warm': '暖房',
@@ -47,22 +52,60 @@ function info(msg) {
   $.snackbar(options);
 }
 
+let targetDeviceId = '';
+let targetMessageId = '';
+
 $(document).ready(() => {
   $('body').bootstrapMaterialDesign();
-});
 
-$('form').submit(() => {
-  clearAllFormValues();
-  return false;
-});
+  $('form').submit(() => {
+    clearAllFormValues();
+    return false;
+  });
 
-$('form').on('input', function() {
-  $(this).find(':submit').attr('disabled', !this.checkValidity());
-});
+  function clearAllFormValues() {
+    $('input,textarea, select').val('');
+  }
 
-function clearAllFormValues() {
-  $('input,textarea, select').val('');
-}
+  $('#addMessageModal').on('show.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    targetDeviceId = button.data('deviceid');
+  });
+
+  $('#editDeviceNameModal').on('show.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    targetDeviceId = button.data('deviceid');
+    $('#editDeviceName').val(button.data('devicename'));
+    $('#editDeviceNameModal').find('.form-group').addClass('is-filled');
+    $('#deviceSerialText').text(`シリアル番号 ： ${targetDeviceId}`);
+  });
+
+  $('#editMessageNameModal').on('show.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    targetDeviceId = button.data('deviceid');
+    targetMessageId = button.data('messageid');
+    $('#editMessageName').val(button.data('messagename'));
+    $('#editMessageNameModal').find('.form-group').addClass('is-filled');
+    $('#editMessageClass').val(button.data('messageclass'));
+  });
+
+  $('#deleteMessageModal').on('show.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    targetDeviceId = button.data('deviceid');
+    targetMessageId = button.data('messageid');
+  });
+
+  $('#deleteDeviceModal').on('show.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    targetDeviceId = button.data('deviceid');
+  });
+
+  $('#receiveMessageModal').on('show.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    targetDeviceId = button.data('deviceid');
+    targetMessageId = button.data('messageid');
+  });
+});
 
 const store = new Object;
 store.deviceList = [];
@@ -251,52 +294,7 @@ function loadDeviceList() {
     },
   });
 }
-
-$('#deviceList').ready(() => {
-  loadDeviceList();
-});
-
-let targetDeviceId = '';
-let targetMessageId = '';
-
-$('#addMessageModal').on('show.bs.modal', (event) => {
-  const button = $(event.relatedTarget);
-  targetDeviceId = button.data('deviceid');
-});
-
-$('#editDeviceNameModal').on('show.bs.modal', (event) => {
-  const button = $(event.relatedTarget);
-  targetDeviceId = button.data('deviceid');
-  $('#editDeviceName').val(button.data('devicename'));
-  $('#editDeviceNameModal').find('.form-group').addClass('is-filled');
-  $('#deviceSerialText').text(`シリアル番号 ： ${targetDeviceId}`);
-});
-
-$('#editMessageNameModal').on('show.bs.modal', (event) => {
-  const button = $(event.relatedTarget);
-  targetDeviceId = button.data('deviceid');
-  targetMessageId = button.data('messageid');
-  $('#editMessageName').val(button.data('messagename'));
-  $('#editMessageNameModal').find('.form-group').addClass('is-filled');
-  $('#editMessageClass').val(button.data('messageclass'));
-});
-
-$('#deleteMessageModal').on('show.bs.modal', (event) => {
-  const button = $(event.relatedTarget);
-  targetDeviceId = button.data('deviceid');
-  targetMessageId = button.data('messageid');
-});
-
-$('#deleteDeviceModal').on('show.bs.modal', (event) => {
-  const button = $(event.relatedTarget);
-  targetDeviceId = button.data('deviceid');
-});
-
-$('#receiveMessageModal').on('show.bs.modal', (event) => {
-  const button = $(event.relatedTarget);
-  targetDeviceId = button.data('deviceid');
-  targetMessageId = button.data('messageid');
-});
+window.loadDeviceList = loadDeviceList;
 
 function sendMessage(deviceId, messageId) {
   const ladda = Ladda.create(document.querySelector(`#send-btn-${messageId}`));
@@ -319,6 +317,7 @@ function sendMessage(deviceId, messageId) {
     ladda.stop();
   });
 }
+window.sendMessage = sendMessage;
 
 function addDevice() {
   const newDeviceName = $('#newDeviceName').val();
@@ -346,6 +345,7 @@ function addDevice() {
     $('#addDeviceModal').modal('hide');
   });
 }
+window.addDevice = addDevice;
 
 function deleteDevice() {
   const url = `/api/users/me/devices/${targetDeviceId}`;
@@ -368,6 +368,7 @@ function deleteDevice() {
     targetDeviceId = '';
   });
 }
+window.deleteDevice = deleteDevice;
 
 function addMessage() {
   const newMessageName = $('#newMessageName').val();
@@ -398,6 +399,7 @@ function addMessage() {
     targetDeviceId = '';
   });
 }
+window.addMessage = addMessage;
 
 function deleteMessage() {
   const url = `/api/users/me/devices/${targetDeviceId}` +
@@ -423,6 +425,7 @@ function deleteMessage() {
     targetMessageId = '';
   });
 }
+window.deleteMessage = deleteMessage;
 
 function updateDeviceName() {
   const name = $('#editDeviceName').val();
@@ -449,6 +452,7 @@ function updateDeviceName() {
     targetDeviceId = '';
   });
 }
+window.updateDeviceName = updateDeviceName;
 
 function updateMessageName() {
   const name = $('#editMessageName').val();
@@ -482,8 +486,9 @@ function updateMessageName() {
     targetMessageId = '';
   });
 }
+window.updateMessageName = updateMessageName;
 
-function receiveMessageName() {
+function receiveMessage() {
   const data = {status: 'receiving'};
   const ladda = Ladda.create(document.querySelector('#receiveMessageButton'));
 
@@ -573,6 +578,7 @@ function receiveMessageName() {
   targetDeviceId = '';
   targetMessageId = '';
 }
+window.receiveMessage = receiveMessage;
 
 function suggest() {
   const text = $('#suggestText').val();
@@ -596,3 +602,4 @@ function suggest() {
     alert('リモコンの提案に失敗しました');
   });
 }
+window.suggest = suggest;
