@@ -4,6 +4,9 @@ let iotCredentials = null;
 let nlcUrl = 'http://localhost';
 let nlcUsername = 'NLCUSERNAME';
 let nlcPassword = 'NLCPASSWORD';
+let sttUrl = 'http://localhost';
+let sttUsername = 'STTUSERNAME';
+let sttPassword = 'STTPASSWORD';
 
 if (process.env.VCAP_SERVICES) {
   const services = JSON.parse(process.env.VCAP_SERVICES);
@@ -21,6 +24,12 @@ if (process.env.VCAP_SERVICES) {
     nlcUsername = credentials.username;
     nlcPassword = credentials.password;
   }
+  if (services['natural_language_classifier']) {
+    const credentials = services['speech_to_text'][0].credentials;
+    sttUrl = credentials.url;
+    sttUsername = credentials.username;
+    sttPassword = credentials.password;
+  }
 }
 
 module.exports = {
@@ -35,6 +44,9 @@ module.exports = {
   nlcUsername: nlcUsername,
   nlcPassword: nlcPassword,
   nlcClassifierId: process.env.NLC_CLASSIFIER_ID || 'NLC_CLASSIFIER_ID',
+  sttUrl: sttUrl,
+  sttUsername: sttUsername,
+  sttPassword: sttPassword,
   remoting: {
     errorHandler: {
       disableStackTrace: true,

@@ -9,6 +9,9 @@
   "nlcUsername": "USERNAME",
   "nlcPassword": "PASSWORD",
   "nlcClassifierId": "NLC_CLASSIFIER_ID",
+  "sttUrl": "http://localhost",
+  "sttUsername": "USERNAME",
+  "sttPassword": "PASSWORD",
   "remoting": {
     "context": false,
     "rest": {

@@ -38,7 +38,10 @@
     "pug": "^2.0.3",
     "serve-favicon": "^2.5.0",
     "snackbarjs": "^1.1.0",
-    "strong-error-handler": "^2.3.2"
+    "strong-error-handler": "^2.3.2",
+    "watson-developer-cloud": "^3.4.0",
+    "watson-speech": "^0.34.1",
+    "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
     "css-loader": "^0.28.11",

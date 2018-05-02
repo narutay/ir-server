@@ -16,11 +16,8 @@ block content
     span 新規デバイスを追加
 
   //提案ボタン
-  .form-group
-    .label.small.text-muted 何をしますか？
-    input.form-control#suggestText(type="text")
   .mt-3.d-flex.justify-content-center
-    button.btn.btn-secondary.bmd-btn-fab(type="button", onClick="suggest()")
+    button.btn.btn-secondary.bmd-btn-fab#suggestButton(type="button", onmousedown="suggestStart()", onmouseup="suggestStop")
       i.material-icons mic
 
   //各種モーダル
@@ -133,6 +130,21 @@ block content
               span.ladda-label.ml-5.mr-5 受信開始
         .modal-footer
           button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
+
+  .modal.fade#suggestModal(aria-hidden="true" role="dialog" tabindex="-1")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h6.modal-title 音声操作
+        .modal-body
+          p.modal-text.muted.small.text-center#suggestInfoText 準備中...
+          .media.d-flex.justify-content-start.align-items-center#suggestInProgress(style="visibility:hidden")
+            span.pr-2.status-green ●
+            span.modal-text.muted.small 録音中
+          p.modal-text.muted.text-center.border.border-success.w-100.p-3#suggestText
+          .d-flex.justify-content-center.w-100
+            button.btn.btn-primary.btn-raised.btn-lg.ladda-button#suggestStopButton(type="button", data-style="expand-left", data-size="l" onClick='suggestStop()')
+              span.ladda-label.ml-5.mr-5 停止
 
 block scripts
   script#deviceCardTemplate(type="text/x-jsrender")

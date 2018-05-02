@@ -3,6 +3,8 @@
 module.exports = function(user) {
   const debug = require('debug')('irserver:user');
   const request = require('request');
+  const NaturalLanguageClassifierV1 = require('watson-developer-cloud/natural-language-classifier/v1');
+  const AuthorizationV1 = require('watson-developer-cloud/authorization/v1');
 
   // user.disableRemoteMethodByName('create');
   user.disableRemoteMethodByName('count');
@@ -77,35 +79,37 @@ module.exports = function(user) {
     const nlcUsername = app.get('nlcUsername');
     const nlcPassword = app.get('nlcPassword');
     const classifierId = app.get('nlcClassifierId');
-    const options = {
-      url: `${nlcUrl}/v1/classifiers/${classifierId}/classify`,
-      method: 'POST',
-      auth: {
-        user: nlcUsername,
-        password: nlcPassword,
-      },
-      json: {'text': text},
-    };
 
+    const classifier = new NaturalLanguageClassifierV1({
+      username: nlcUsername,
+      password: nlcPassword,
+      url: nlcUrl,
+    });
+
+    const question = {
+      text: text,
+      classifier_id: classifierId,
+    };
     debug(`request NLC classify classifierId: [${classifierId}] text: ${text}`);
-    request(options, (err, response, body) => {
+    classifier.classify(question, (err, response) => {
       if (err) {
-        debug(`failed classifierId: [${classifierId}] text: ${text} err: ${err}`);
+        debug(`failed classifierId: [${classifierId}] text: ${text}`);
         const err = new Error();
         err.statusCode = 500;
         cb(err);
-      }
-      const topClass = body.classes[0];
-      const confidence = topClass.confidence;
-      const className = topClass.class_name;
-      if (topClass.confidence < minConfidence) {
-        debug(`class [${className}] confidence ${confidence} less than ${minConfidence}`);
-        const err = new Error();
-        err.statusCode = 404;
-        cb(err);
       } else {
-        debug(`found class [${className}] confidence: ${confidence}`);
-        return cb(null, className);
+        const topClass = response.classes[0];
+        const confidence = topClass.confidence;
+        const className = topClass.class_name;
+        if (topClass.confidence < minConfidence) {
+          debug(`class [${className}] confidence ${confidence} less than ${minConfidence}`);
+          const err = new Error();
+          err.statusCode = 404;
+          cb(err);
+        } else {
+          debug(`found class [${className}] confidence: ${confidence}`);
+          return cb(null, className);
+        }
       }
     });
   }
@@ -182,5 +186,47 @@ module.exports = function(user) {
     ],
     returns: {type: 'object', root: true},
     http: {path: '/:id/suggest', verb: 'post'},
+  });
+
+  function getSttToken(cb) {
+    const app = user.app;
+    const sttUrl = app.get('sttUrl');
+    const sttUsername = app.get('sttUsername');
+    const sttPassword = app.get('sttPassword');
+
+    const authorization = new AuthorizationV1({
+      username: sttUsername,
+      password: sttPassword,
+      url: 'https://stream.watsonplatform.net/authorization/api',
+    });
+
+    authorization.getToken({url: sttUrl}, (err, token) => {
+      if (err || !token) {
+        debug(`failed get STT Token by use ${sttUsername} err: ${err}`);
+        const err = new Error();
+        err.statusCode = 500;
+        return cb(err);
+      } else {
+        return cb(null, {token: token});
+      }
+    });
+  }
+
+  user.suggestToken = function(id, next) {
+    getSttToken((err, token) => {
+      if (err) {
+        return next(err);
+      } else {
+        return next(null, token);
+      }
+    });
+  };
+
+  user.remoteMethod('suggestToken', {
+    accepts: [
+      {arg: 'id', type: 'string'},
+    ],
+    returns: {type: 'object', root: true},
+    http: {path: '/:id/suggestToken', verb: 'get'},
   });
 };
