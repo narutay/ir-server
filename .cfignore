@@ -30,3 +30,5 @@ providers.local.*
 device
 test-data
 tmp
+
+server/public/js/*

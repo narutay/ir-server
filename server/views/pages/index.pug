@@ -8,6 +8,7 @@ block content
 
   //デバイス一覧の挿入箇所
   div#deviceList(style="display: none;")
+  script loadDeviceList();
 
   //デバイス追加ボタン
   button.btn.btn-primary.btn-raised.small.d-flex.justify-content-center.align-items-center.p-1.my-1.text-white-50.rounded.box-shadow.w-100(type="button" data-toggle="modal" data-target="#addDeviceModal")
@@ -53,7 +54,7 @@ block content
               span.bmd-help 任意のデバイス名。 例: リビング
           .modal-footer
             button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
-            button.btn.btn-primary(type="submit", disabled, onClick='updateDeviceName()') 更新
+            button.btn.btn-primary(type="submit", onClick='updateDeviceName()') 更新
 
   .modal.fade#editMessageNameModal(aria-hidden="true" role="dialog" tabindex="-1")
     .modal-dialog(role="document")
@@ -76,7 +77,7 @@ block content
               span.small.text-muted リモコンの提案機能で必要となります
           .modal-footer
             button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
-            button.btn.btn-primary(type="submit", disabled, onClick='updateMessageName()') 更新
+            button.btn.btn-primary(type="submit", onClick='updateMessageName()') 更新
 
   .modal.fade#addDeviceModal(aria-hidden="true" role="dialog" tabindex="-1")
     .modal-dialog(role="document")
@@ -95,7 +96,7 @@ block content
                 span.bmd-help デバイスの背面に記載されているシリアル番号を入力してください。
           .modal-footer
             button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
-            button.btn.btn-primary(type="submit", disabled, onClick='addDevice()') 追加
+            button.btn.btn-primary(type="submit", onClick='addDevice()') 追加
 
   .modal.fade#addMessageModal(aria-hidden="true" role="dialog" tabindex="-1")
     .modal-dialog(role="document")
@@ -118,7 +119,7 @@ block content
                 span.small.text-muted リモコンの提案機能で必要となります
           .modal-footer
             button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
-            button.btn.btn-primary(type="submit", disabled, onClick='addMessage()') 追加
+            button.btn.btn-primary(type="submit", onClick='addMessage()') 追加
 
   .modal.fade#receiveMessageModal(aria-hidden="true" role="dialog" tabindex="-1")
     .modal-dialog(role="document")
@@ -128,7 +129,7 @@ block content
         .modal-body
           p.modal-text.muted.small お手持ちのリモコンを用意してください。(受信開始)ボタンを押したら10秒以内にデバイスに向けてリモコン操作をしましょう。
           .d-flex.justify-content-center.w-100
-            button.btn.btn-primary.btn-raised.btn-lg.ladda-button#receiveMessageButton(type="submit", data-style="slide-down", data-size="l" onClick='receiveMessageName()')
+            button.btn.btn-primary.btn-raised.btn-lg.ladda-button#receiveMessageButton(type="submit", data-style="slide-down", data-size="l" onClick='receiveMessage()')
               span.ladda-label.ml-5.mr-5 受信開始
         .modal-footer
           button.btn.btn-secondary(type="button", data-dismiss="modal") キャンセル
@@ -184,5 +185,3 @@ block scripts
                 div {{if status !== "ready"}}
                   button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#receiveMessageModal") リモコンデータ登録 {{/if}}
                 button.dropdown-item.small(data-toggle="modal", data-deviceid="{{:deviceId}}", data-messageid="{{:id}}", data-target="#deleteMessageModal") 削除
-
-  script(src='/app/index.js')
