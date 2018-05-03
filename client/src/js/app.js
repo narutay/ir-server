@@ -4,7 +4,7 @@ require('bootstrap-material-design');
 require('snackbarjs');
 require('jsrender');
 const Ladda = require('ladda');
-const recognizeMic = require('watson-speech/speech-to-text/recognize-microphone');
+const recognizeMic = require('watson-speech/speech-to-text/recognize-microphone'); // eslint-disable-line max-len
 
 const messageClassDisplayName = {
   'ac_cool': '冷房',
@@ -132,7 +132,8 @@ store.upsertDeviceList = function(device) {
   } else {
     appendDeviceTemplate(device);
   }
-  if (this.messageList[device.id] !== undefined && this.messageList[device.id].length > 0) {
+  if (this.messageList[device.id] !== undefined &&
+      this.messageList[device.id].length > 0) {
     loadMessageTemplate(device.id, this.messageList[device.id]);
   }
 };
@@ -308,12 +309,12 @@ function sendMessage(deviceId, messageId) {
     data: {messageId: messageId},
     timeout: 10000,
   });
-  request.done((msg) => {
+  request.done(() => {
     info('リモコンデータの送信に成功しました');
     ladda.stop();
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('リモコンデータの送信に失敗しました');
     ladda.stop();
   });
@@ -341,7 +342,7 @@ function addDevice() {
     $('#deviceList').fadeIn();
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('デバイスの登録に失敗しました');
     $('#addDeviceModal').modal('hide');
   });
@@ -363,7 +364,7 @@ function deleteDevice() {
     targetDeviceId = '';
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('デバイスの削除に失敗しました');
     $('#deleteDeviceModal').modal('hide');
     targetDeviceId = '';
@@ -394,7 +395,7 @@ function addMessage() {
     targetDeviceId = '';
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('リモコンデータの登録に失敗しました');
     $('#addMessageModal').modal('hide');
     targetDeviceId = '';
@@ -411,7 +412,7 @@ function deleteMessage() {
     timeout: 10000,
   });
 
-  request.done((msg) => {
+  request.done(() => {
     info('リモコンデータの削除が完了しました');
     store.removeMessageList(targetDeviceId, targetMessageId);
     $('#deleteMessageModal').modal('hide');
@@ -419,7 +420,7 @@ function deleteMessage() {
     targetMessageId = '';
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('リモコンデータの削除に失敗しました');
     $('#deleteMessageModal').modal('hide');
     targetDeviceId = '';
@@ -447,7 +448,7 @@ function updateDeviceName() {
     targetDeviceId = '';
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('デバイス名の編集に失敗しました');
     $('#editDeviceNameModal').modal('hide');
     targetDeviceId = '';
@@ -480,7 +481,7 @@ function updateMessageName() {
     targetMessageId = '';
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('リモコンデータ名の編集に失敗しました');
     $('#editMessageNameModal').modal('hide');
     targetDeviceId = '';
@@ -540,7 +541,7 @@ function receiveMessage() {
         }
       });
 
-      request.fail((jqXHR, textStatus) => {
+      request.fail(() => {
         $('#receiveMessageModal').modal('hide');
         alert('リモコンデータの受信に失敗しました');
         ladda.stop();
@@ -558,7 +559,7 @@ function receiveMessage() {
     }, 3000);
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail((jqXHR) => {
     switch (jqXHR.status) {
       case 503:
         $('#receiveMessageModal').modal('hide');
@@ -581,16 +582,7 @@ function receiveMessage() {
 }
 window.receiveMessage = receiveMessage;
 
-let suggestText = '';
-
-function suggest() {
-  const text = suggestText;
-
-  if (text === '') {
-    alert('音声が読み取れませんでした');
-    return;
-  }
-
+function suggest(text) {
   const data = {text: text};
 
   const url = '/api/users/me/suggest';
@@ -607,7 +599,7 @@ function suggest() {
     });
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('リモコンの提案に失敗しました');
   });
 }
@@ -616,7 +608,6 @@ window.suggest = suggest;
 let stream;
 window.suggestStart = function() {
   console.log('suggest start');
-  suggestText = '';
   $('#suggestInfoText').text('準備中...');
   $('#suggestText').text('');
   $('#suggestModal').modal('show');
@@ -630,37 +621,51 @@ window.suggestStart = function() {
   request.done((response) => {
     if (response.token) {
       const token = response.token;
-      console.log(`suggest token is ${token}`);
+      console.log('suggest token received');
       stream = recognizeMic({
         token: token,
         model: 'ja-JP_BroadbandModel',
-        outputElement: '#suggestText',
+        object_mode: false, // eslint-disable-line camelcase
       });
       stream.on('error', (err) => {
         closeSuggestModal();
         alert('音声操作に失敗しました');
         console.log(err);
       });
-      $('#suggestInfoText').text('何をしますか？話しかけてください。');
-      $('#suggestInProgress').css('visibility', 'visible');
+      setTimeout(()=> {
+        $('#suggestInfoText').text('何をしますか？話しかけてください。');
+        $('#suggestInProgress').css('visibility', 'visible');
+      }, 500);
+      stream.setEncoding('utf8');
+      stream.on('data', (data) => {
+        console.log(`received ${data}`);
+        console.log(`received ${data.length}`);
+        if (data.length < 4) {
+          $('#suggestInfoText').text('聞き取れませんでした、もう一度話しかけてください。');
+        } else {
+          $('#suggestInfoText').text('音声コマンドを受信しました。');
+          $('#suggestText').text(data);
+          $('#suggestInProgress').css('visibility', 'hidden');
+          stream.stop();
+          suggest(data);
+          setTimeout(()=> {
+            closeSuggestModal();
+          }, 1000);
+        }
+      });
     }
   });
 
-  request.fail((jqXHR, textStatus) => {
+  request.fail(() => {
     alert('音声操作に失敗しました');
+    closeSuggestModal();
   });
 };
 
 window.suggestStop = function() {
   stream.stop();
-  setTimeout(() => {
-    console.log('suggest stop');
-    suggestText = $('#suggestText').text();
-    console.log(`speech text is ${suggestText}`);
-    $('#suggestText').text('');
-    suggest();
-    closeSuggestModal();
-  }, 2000);
+  console.log('suggest canceled');
+  closeSuggestModal();
 };
 
 function closeSuggestModal() {

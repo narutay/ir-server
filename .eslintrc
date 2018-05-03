@@ -2,6 +2,7 @@
   "extends": ["eslint:recommended", "loopback"],
   "plugins": ["node", "pug"],
   "env": {
+      "browser": true,
       "es6": true,
       "node": true,
       "jquery": true
