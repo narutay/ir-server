@@ -4,7 +4,8 @@ require('bootstrap-material-design');
 require('snackbarjs');
 require('jsrender');
 const Ladda = require('ladda');
-const recognizeMic = require('watson-speech/speech-to-text/recognize-microphone'); // eslint-disable-line max-len
+require('whatwg-fetch');
+const recognizeMicrophone = require('watson-speech/speech-to-text/recognize-microphone'); // eslint-disable-line max-len
 
 const messageClassDisplayName = {
   'ac_cool': '冷房',
@@ -66,6 +67,84 @@ $(document).ready(() => {
 
   function clearAllFormValues() {
     $('input,textarea, select').val('');
+  }
+
+  const suggestButton = document.querySelector('#suggestButton');
+  if (suggestButton) {
+    let sttToken;
+    fetch('/api/users/me/suggestToken', {
+      credentials: 'same-origin',
+    }).
+      then((response) => {
+        return response.json();
+      }).
+      then((data) => {
+        console.log(`suggest token received ${data}`);
+        if (!data.token) {
+          alert('音声操作に失敗しました');
+          closeSuggestModal();
+          return;
+        }
+        sttToken = data.token;
+      }).
+      catch((error) => {
+        alert('音声操作に失敗しました');
+        closeSuggestModal();
+        console.log(error);
+      });
+    suggestButton.onclick = function() {
+      if (!sttToken) {
+        alert('音声操作に失敗しました。ブラウザをリロードしてください。');
+        closeSuggestModal();
+        return;
+      }
+      console.log('suggest start');
+      $('#suggestInfoText').text('準備中...');
+      $('#suggestText').text('');
+      $('#suggestModal').modal('show');
+      const stream = recognizeMicrophone({
+        token: sttToken,
+        model: 'ja-JP_BroadbandModel',
+        object_mode: false, // eslint-disable-line camelcase
+      });
+      stream.on('error', (err) => {
+        closeSuggestModal();
+        alert('音声操作に失敗しました');
+        console.log(err);
+      });
+      setTimeout(()=> {
+        $('#suggestInfoText').text('何をしますか？話しかけてください。');
+        $('#suggestInProgress').css('visibility', 'visible');
+      }, 500);
+      stream.setEncoding('utf8');
+
+      stream.on('data', (data) => {
+        console.log(`received ${data}`);
+        console.log(`received ${data.length}`);
+        if (data.length < 4) {
+          $('#suggestInfoText').text('聞き取れませんでした、もう一度話しかけてください。');
+        } else {
+          $('#suggestInfoText').text('音声コマンドを受信しました。');
+          $('#suggestText').text(data);
+          $('#suggestInProgress').css('visibility', 'hidden');
+          stream.stop();
+          suggest(data);
+          setTimeout(()=> {
+            closeSuggestModal();
+          }, 1000);
+        }
+      });
+      document.querySelector('#suggestStopButton').onclick = function() {
+        stream.stop();
+        console.log('suggest canceled');
+        closeSuggestModal();
+      };
+    };
+  }
+
+  function closeSuggestModal() {
+    $('#suggestModal').modal('hide');
+    $('#suggestInProgress').css('visibility', 'hidden');
   }
 
   $('#addMessageModal').on('show.bs.modal', (event) => {
@@ -604,71 +683,3 @@ function suggest(text) {
   });
 }
 window.suggest = suggest;
-
-let stream;
-window.suggestStart = function() {
-  console.log('suggest start');
-  $('#suggestInfoText').text('準備中...');
-  $('#suggestText').text('');
-  $('#suggestModal').modal('show');
-  const url = '/api/users/me/suggestToken';
-  const request = $.ajax({
-    url: url,
-    type: 'GET',
-    timeout: 10000,
-  });
-
-  request.done((response) => {
-    if (response.token) {
-      const token = response.token;
-      console.log('suggest token received');
-      stream = recognizeMic({
-        token: token,
-        model: 'ja-JP_BroadbandModel',
-        object_mode: false, // eslint-disable-line camelcase
-      });
-      stream.on('error', (err) => {
-        closeSuggestModal();
-        alert('音声操作に失敗しました');
-        console.log(err);
-      });
-      setTimeout(()=> {
-        $('#suggestInfoText').text('何をしますか？話しかけてください。');
-        $('#suggestInProgress').css('visibility', 'visible');
-      }, 500);
-      stream.setEncoding('utf8');
-      stream.on('data', (data) => {
-        console.log(`received ${data}`);
-        console.log(`received ${data.length}`);
-        if (data.length < 4) {
-          $('#suggestInfoText').text('聞き取れませんでした、もう一度話しかけてください。');
-        } else {
-          $('#suggestInfoText').text('音声コマンドを受信しました。');
-          $('#suggestText').text(data);
-          $('#suggestInProgress').css('visibility', 'hidden');
-          stream.stop();
-          suggest(data);
-          setTimeout(()=> {
-            closeSuggestModal();
-          }, 1000);
-        }
-      });
-    }
-  });
-
-  request.fail(() => {
-    alert('音声操作に失敗しました');
-    closeSuggestModal();
-  });
-};
-
-window.suggestStop = function() {
-  stream.stop();
-  console.log('suggest canceled');
-  closeSuggestModal();
-};
-
-function closeSuggestModal() {
-  $('#suggestModal').modal('hide');
-  $('#suggestInProgress').css('visibility', 'hidden');
-}

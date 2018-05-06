@@ -16,9 +16,8 @@ block content
     span 新規デバイスを追加
 
   //提案ボタン
-  .mt-3.d-flex.justify-content-center
-    button.btn.btn-secondary.bmd-btn-fab#suggestButton(type="button", onmousedown="suggestStart()", onmouseup="suggestStop")
-      i.material-icons mic
+  button.btn.btn-secondary.bmd-btn-fab.ml-4.mb-4#suggestButton(type="button")
+    i.material-icons mic
 
   //各種モーダル
   .modal.fade#deleteMessageModal(aria-hidden="true")
