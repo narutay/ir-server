@@ -3,7 +3,7 @@ applications:
   path: .
   instances: 1
   memory: 256M
-  buildpack: nodejs_buildpack
+  buildpack: sdk-for-nodejs
   command: node .
   domain: mybluemix.net
   host: irserver
