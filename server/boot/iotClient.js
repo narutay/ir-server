@@ -84,7 +84,7 @@ module.exports = function(app) {
   if (iotCredentials && iotCredentials.org) {
     const appClientConfig = {
       'org': iotCredentials.org,
-      'id': iotCredentials.id,
+      'id': iotCredentials.iotCredentialsIdentifier,
       'auth-key': iotCredentials.apiKey,
       'auth-token': iotCredentials.apiToken,
       'type': 'shared',

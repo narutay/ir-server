@@ -2,8 +2,7 @@
 
 module.exports = function(user) {
   const debug = require('debug')('irserver:user');
-  const request = require('request');
-  const NaturalLanguageClassifierV1 = require('watson-developer-cloud/natural-language-classifier/v1');
+  const NaturalLanguageClassifierV1 = require('watson-developer-cloud/natural-language-classifier/v1'); // eslint-disable-line max-len
   const AuthorizationV1 = require('watson-developer-cloud/authorization/v1');
 
   // user.disableRemoteMethodByName('create');
@@ -75,20 +74,13 @@ module.exports = function(user) {
   function getClass(text, cb) {
     const minConfidence = 0.5;
     const app = user.app;
-    const nlcUrl = app.get('nlcUrl');
-    const nlcUsername = app.get('nlcUsername');
-    const nlcPassword = app.get('nlcPassword');
+    const nlcCredentials = app.get('nlcCredentials');
     const classifierId = app.get('nlcClassifierId');
-
-    const classifier = new NaturalLanguageClassifierV1({
-      username: nlcUsername,
-      password: nlcPassword,
-      url: nlcUrl,
-    });
+    const classifier = new NaturalLanguageClassifierV1(nlcCredentials);
 
     const question = {
       text: text,
-      classifier_id: classifierId,
+      classifier_id: classifierId, // eslint-disable-line camelcase
     };
     debug(`request NLC classify classifierId: [${classifierId}] text: ${text}`);
     classifier.classify(question, (err, response) => {
@@ -102,7 +94,7 @@ module.exports = function(user) {
         const confidence = topClass.confidence;
         const className = topClass.class_name;
         if (topClass.confidence < minConfidence) {
-          debug(`class [${className}] confidence ${confidence} less than ${minConfidence}`);
+          debug(`class [${className}] confidence ${confidence} less than ${minConfidence}`); // eslint-disable-line max-len
           const err = new Error();
           err.statusCode = 404;
           cb(err);
@@ -190,19 +182,18 @@ module.exports = function(user) {
 
   function getSttToken(cb) {
     const app = user.app;
-    const sttUrl = app.get('sttUrl');
-    const sttUsername = app.get('sttUsername');
-    const sttPassword = app.get('sttPassword');
+    const sttCredentials = app.get('sttCredentials');
+    const sttUrl = sttCredentials.url;
 
     const authorization = new AuthorizationV1({
-      username: sttUsername,
-      password: sttPassword,
-      url: 'https://stream.watsonplatform.net/authorization/api',
+      username: sttCredentials.username,
+      password: sttCredentials.password,
+      url: 'https://stream.watsonplatform.net/authorization/api'
     });
 
     authorization.getToken({url: sttUrl}, (err, token) => {
       if (err || !token) {
-        debug(`failed get STT Token by use ${sttUsername} err: ${err}`);
+        debug(`failed get STT Token by use ${sttCredentials.username} err: ${err}`); // eslint-disable-line max-len
         const err = new Error();
         err.statusCode = 500;
         return cb(err);

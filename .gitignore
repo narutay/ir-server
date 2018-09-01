@@ -96,13 +96,8 @@ tags
 ### VisualStudioCode ###
 .vscode/*
 
-### Loopback
-# local config file
-component-config.local.*
-config.local.*
-datasources.local.*
-middleware.local.*
-providers.local.*
+### Cloud Foundry
+vcap-local.json
 
 ### Other
 # 作業用ディレクトリ
