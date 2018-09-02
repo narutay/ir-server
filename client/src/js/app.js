@@ -5,36 +5,8 @@ require('snackbarjs');
 require('jsrender');
 const Ladda = require('ladda');
 require('whatwg-fetch');
-const recognizeMicrophone = require('watson-speech/speech-to-text/recognize-microphone'); // eslint-disable-line max-len
-
-const messageClassDisplayName = {
-  'ac_cool': '冷房',
-  'ac_warm': '暖房',
-  'ac_off': 'エアコン停止',
-  'ac_dehum': '除湿',
-  'light_off': 'ライトオフ',
-  'light_on': 'ライトオン',
-  'light_theater': 'シアターモード',
-  'tv_onoff': 'TV オン/オフ',
-  'tv_nhk': 'NHK',
-  'tv_etele': 'Eテレ',
-  'tv_ntv': '日本テレビ',
-  'tv_asahi': 'テレビ朝日',
-  'tv_tbs': 'TBS',
-  'tv_tokyo': 'テレビ東京',
-  'tv_fuji': 'フジテレビ',
-  'tv_volup': 'TV 音量UP',
-  'tv_voldown': 'TV 音量DOWN',
-  'tv_mute': 'TV 消音',
-  'tv_skip': 'TV スキップ',
-  'tv_stop': 'TV 停止',
-  'tv_back': 'TV 戻る',
-  'tv_start': 'TV 再生',
-  'tv_blue': 'TV 青',
-  'tv_red': 'TV 赤',
-  'tv_green': 'TV 緑',
-  'tv_yellow': 'TV 黄',
-};
+const recognizeMicrophone = require('watson-speech/speech-to-text/recognize-microphone');
+const messageClassDisplayName = require('../../../lib/message-class.json');
 
 function alert(msg) {
   const options = {

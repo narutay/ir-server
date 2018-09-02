@@ -31,8 +31,9 @@
     },
     "class": {
       "type": "string",
-      "required": false,
-      "length": 36
+      "required": true,
+      "length": 36,
+      "default": "none"
     }
   },
   "validations": [],
