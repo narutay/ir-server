@@ -2,6 +2,7 @@
 
 module.exports = function(user) {
   const debug = require('debug')('irserver:user');
+  const CommonError = require('../../lib/error');
   // Watson STTのクライアント
   const sttClient = require('../../lib/stt-client');
   // Watson NLCのクライアント
@@ -57,11 +58,9 @@ module.exports = function(user) {
 
     // messageIdに登録されている赤外線データを検索する
     message.findMessage(messageId, (err, message) =>{
-      if (err || message === null) {
+      if (err || !message) {
         // 対象の赤外線データが存在しない場合
-        const err = new Error();
-        err.statusCode = 404;
-        return next(err);
+        return next(CommonError.NotFoundError);
       }
 
       // 赤外線メッセージをデバイスから送信
@@ -69,8 +68,7 @@ module.exports = function(user) {
         if (err) {
           return next(err);
         } else {
-          const resultStr = JSON.stringify(result);
-          debug(`success send message ${resultStr}`);
+          debug(`success send message ${JSON.stringify(result)}`);
           return next();
         }
       });
@@ -101,6 +99,11 @@ module.exports = function(user) {
   user.suggest = function(id, text, dry, next) {
     const app = user.app;
     const message = app.models.message;
+    const nlcEnabled = app.get('nlcEnabled');
+    if (!nlcEnabled) {
+      debug('NLC is disabled');
+      return next(CommonError.NotImplementedError);
+    }
     const nlcCredentials = app.get('nlcCredentials');
     const classifierId = app.get('nlcClassifierId');
     const classifier = new nlcClient(nlcCredentials, classifierId);
@@ -111,15 +114,11 @@ module.exports = function(user) {
         if (err.statusCode === 404) {
           // 信頼率が高いクラスが見つからなかった場合Not Found
           debug(`not found class. text: ${text}`);
-          const err = new Error();
-          err.statusCode = 404;
-          return next(err);
+          return next(CommonError.NotFoundError);
         } else {
           // それ以外は500
           debug(`failed classfy. text: ${text}`);
-          const err = new Error();
-          err.statusCode = 500;
-          return next(err);
+          return next(CommonError.InternalServerError);
         }
       }
 
@@ -133,19 +132,16 @@ module.exports = function(user) {
         ],
       };
       message.find({where: filter}, (err, result) => {
+        result = result || {};
         // 検索が失敗した場合
         if (err) {
-          const err = new Error();
-          err.statusCode = 500;
-          return next(err);
+          return next(CommonError.InternalServerError);
         }
 
         // 検索に成功したが、該当のメッセージが存在しなかった場合Not Found
         if (result.length === 0) {
           debug(`no message found. class: [${messageClass}]`);
-          const err = new Error();
-          err.statusCode = 404;
-          next(err);
+          next(CommonError.NotFoundError);
         }
 
         if (!dry) {
@@ -154,8 +150,6 @@ module.exports = function(user) {
           device.sendAllMessage(result, (err, messages) => {
             if (err) {
               // すべての送信に失敗した場合
-              const err = new Error();
-              err.statusCode = 500;
               return next(err);
             } else {
               // 送信に成功した場合、成功したメッセージの一覧を返却する
@@ -194,13 +188,16 @@ module.exports = function(user) {
    */
   user.suggestToken = function(id, next) {
     const app = user.app;
+    const nlcEnabled = app.get('nlcEnabled');
+    if (!nlcEnabled) {
+      debug('NLC is disabled');
+      return next(CommonError.NotImplementedError);
+    }
     const sttCredentials = app.get('sttCredentials');
     const client = new sttClient(sttCredentials);
     client.getSttToken((err, token) => {
       if (err) {
-        const err = new Error();
-        err.statusCode = 500;
-        return next(err);
+        return next(CommonError.InternalServerError);
       } else {
         return next(null, token);
       }

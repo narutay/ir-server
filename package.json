@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "node .",
+    "start": "LANG=en node .",
     "build": "webpack",
     "test": "NODE_ENV=test DEBUG='irserver*' nyc --reporter=html --reporter=text mocha"
   },

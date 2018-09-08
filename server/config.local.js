@@ -46,7 +46,7 @@ module.exports = {
   iotCredentials: iotCredentials,
   nlcCredentials: nlcCredentials,
   sttCredentials: sttCredentials,
-  nlcClassifierId: process.env.NLC_CLASSIFIER_ID || 'NLC_CLASSIFIER_ID',
+  nlcClassifierName: process.env.NLC_CLASSIFIER_NAME || 'home_control',
   messageClassDisplayName: messageClassDisplayName,
   remoting: {
     errorHandler: {

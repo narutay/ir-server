@@ -2,6 +2,7 @@
 
 module.exports = function(message) {
   const debug = require('debug')('irserver:message');
+  const CommonError = require('../../lib/error');
   const changeStatusTimeout = 10 * 1000; // 10sec
 
   // statusが initialized, receiving, readyのいずれかであるかチェック
@@ -26,16 +27,30 @@ module.exports = function(message) {
    * @param {Object} payload 受信したイベントのペイロード（JSONデータ）
    */
   message.registerMessage = function(deviceId, payload) {
-    const obj = JSON.parse(payload);
-    const messageId = obj.messageId;
-    const data = obj.irData;
+    try {
+      payload = JSON.parse(payload) || {};
+    } catch (e) {
+      debug(`cloud not parse register message payload ${payload}`);
+      return;
+    }
+    const messageId = payload.messageId;
+    const irData = payload.irData;
+    // 引数オブジェクトのチェック
+    if (!messageId) {
+      debug('{{payload.messageId}} is required object');
+      return;
+    }
+    if (!irData) {
+      debug('{{payload.irData}} is required object');
+      return;
+    }
 
-    const messageData = {status: 'ready', data: data};
+    const messageData = {status: 'ready', data: irData};
     message.update({id: messageId}, messageData, (err) => {
       if (err) {
-        debug(`Message [${messageId}] update failed: ${messageData}`);
+        debug(`message [${messageId}] clould not update: ${JSON.stringify(messageData)}`);
       } else {
-        debug(`Message [${messageId}] updated: ${messageData}`);
+        debug(`message [${messageId}] updated: ${JSON.stringify(messageData)}`);
       }
     });
   };
@@ -49,9 +64,9 @@ module.exports = function(message) {
    */
   message.findMessage = function(messageId, cb) {
     message.findById(messageId, (err, result) => {
-      if (err || result === null) {
-        debug(`failed find message [${messageId}]`);
-        return cb(err);
+      if (err || !result) {
+        debug(`no message found [${messageId}]`);
+        return cb(CommonError.NotFoundError);
       } else {
         return cb(null, result);
       }
@@ -73,16 +88,17 @@ module.exports = function(message) {
     setTimeout(() => {
       // ロールバック前に現在のstatusを確認し、receive(変化が無い)でなければ処理をスキップする
       message.findMessage(messageId, (err, result) => {
-        if (err || result.status === undefined) {
-          debug(`Message [${messageId}] not found.`);
-          debug(`skip change status ${beforeStatus} => ${afterStatus} ...`);
+        result = result || {};
+        if (err || !result.status) {
+          debug(`not found message [${messageId}].`);
+          debug(`...skip change status ${beforeStatus} => ${afterStatus}`);
           return;
         }
 
         // statusが変更されている場合、処理をスキップする
         if (result.status !== beforeStatus) {
-          debug(`Message [${messageId}] status changed to ${result.status}.`);
-          debug(`skip change status ${beforeStatus} => ${afterStatus} ...`);
+          debug(`message [${messageId}] status changed to ${result.status}.`);
+          debug(`...skip change status ${beforeStatus} => ${afterStatus}`);
           return;
         }
 
@@ -90,10 +106,10 @@ module.exports = function(message) {
         const messageData = {status: afterStatus};
         message.update({id: messageId}, messageData, (err) => {
           if (err) {
-            debug(`Message [${messageId}] update failed: ${beforeStatus} => ${afterStatus}`);
+            debug(`message [${messageId}] status cloud not change: ${beforeStatus} => ${afterStatus}`);
             return;
           } else {
-            debug(`Message [${messageId}] updated: ${beforeStatus} => ${afterStatus}`);
+            debug(`message [${messageId}] is changed: ${beforeStatus} => ${afterStatus}`);
           }
         });
       });
@@ -112,38 +128,25 @@ module.exports = function(message) {
       const device = ctx.Model.app.models.device;
       const messageId = ctx.where.id;
       message.findMessage(messageId, (err, result) => {
-        if (err || result === undefined) {
+        result = result || {};
+        if (err || !result) {
           // メッセージが見つからなかった場合
-          debug(`failure find massage id: ${messageId}`);
-          const err = new Error();
-          err.statusCode = 500;
-          return next(err);
+          debug(`not found massage [${messageId}]`);
+          return next(CommonError.NotFoundError);
         }
-        const currentStatus = result.status;
 
+        const currentStatus = result.status;
         // 現在のstatusがreceivingである場合、重複実行となるためエラーとする
         if (currentStatus === 'receiving') {
-          debug(`failure find massage id: ${messageId}`);
-          const err = new Error({message: 'parallel execution is not allowed'});
-          err.statusCode = 400;
+          debug(`in receiving, not allowed receive message: ${messageId}`);
+          const err = CommonError.BadRequestError;
+          err.detail = 'parallel execution is not allowed';
           return next(err);
         }
 
         // デバイスを赤外線リモコン受信待ちにする
         device.receiveMessage(result, (err) => {
-          if (err) {
-            if (err.statusCode === 503) {
-              // デバイスがオフラインの場合
-              const err = new Error();
-              err.statusCode = 503;
-              return next(err);
-            } else {
-              //  それ以外の場合
-              const err = new Error();
-              err.statusCode = 500;
-              return next(err);
-            }
-          }
+          if (err) return next(err);
 
           // 一定時間立っても登録されなかった場合、statusをreceivingから元に戻す
           rollbackStatus(messageId, 'receiving', currentStatus, changeStatusTimeout);

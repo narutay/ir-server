@@ -2,6 +2,7 @@
 
 module.exports = function(device) {
   const debug = require('debug')('irserver:device');
+  const CommonError = require('../../lib/error');
   // Watson IoTの共有クライアント
   const iotClient = require('../../lib/iot-client');
 
@@ -17,9 +18,9 @@ module.exports = function(device) {
 
     device.update({id: deviceId}, {status: deviceStatus}, (err) => {
       if (err) {
-        debug(`Device [${deviceId}] status update failed: ${deviceStatus}`);
+        debug(`device [${deviceId}] status update failed: ${deviceStatus}`);
       } else {
-        debug(`Device [${deviceId}] status updated: ${deviceStatus}`);
+        debug(`device [${deviceId}] status updated: ${deviceStatus}`);
       }
     });
   };
@@ -34,9 +35,10 @@ module.exports = function(device) {
   device.isConnected = function(deviceId, cb) {
     // deviceIDで検索しstatusのみを抽出する
     device.findById(deviceId, {fields: {status: true}}, (err, result) => {
-      if (err || result === null || result.status === undefined) {
-        debug(`failed get device status [${deviceId}]`);
-        return cb(err);
+      result = result || {};
+      if (err || !result.status) {
+        debug(`clould not get device [${deviceId}] status`);
+        return cb(CommonError.InternalServerError);
       }
 
       const deviceStatus = result.status;
@@ -44,9 +46,7 @@ module.exports = function(device) {
         return cb(null);
       } else {
         debug(`device is not connected. current status: ${deviceStatus}`);
-        const err = new Error();
-        err.statusCode = 503;
-        return cb(err);
+        return cb(CommonError.ServiceUnavailableError);
       }
     });
   };
@@ -60,33 +60,29 @@ module.exports = function(device) {
    * @callback {Function} cb
    */
   device.sendMessage = function(message, cb) {
-    let irData = null;
-    let deviceId = null;
-    try {
-      irData = message.data;
-      deviceId = message.deviceId;
-    } catch (e) {
-      debug('can not parse irData object from message object');
-      const err = new Error();
-      err.statusCode = 500;
-      return cb(err);
+    message = message || {};
+    const irData = message.data;
+    const deviceId = message.deviceId;
+    // 引数オブジェクトのチェック
+    if (!irData) {
+      debug('{{message.data}} is required object');
+      return cb(CommonError.BadRequestError);
+    }
+    if (!deviceId) {
+      debug('{{message.deviceId}} is required object');
+      return cb(CommonError.BadRequestError);
     }
 
     // デバイスがオンラインか確認
     device.isConnected(deviceId, (err) => {
-      // オンラインでなければエラー
-      if (err) {
-        const err = new Error();
-        err.statusCode = 503;
-        return cb(err);
-      }
+      if (err) return cb(err);
+
       // デバイスに赤外線データを送信する
       iotClient.sendMessage(deviceId, irData, (err) => {
         if (err) {
           // 赤外線の送信に失敗した場合
-          const err = new Error();
-          err.statusCode = 500;
-          return cb(err);
+          debug(`failed send massage: ${JSON.stringify({deviceId: deviceId, irData: irData})}`);
+          return cb(CommonError.InternalServerError);
         } else {
           return cb(null, message);
         }
@@ -105,33 +101,29 @@ module.exports = function(device) {
    * @param {Error} err Error object
    */
   device.receiveMessage = function(message, cb) {
-    let messageId = null;
-    let deviceId = null;
-    try {
-      messageId = message.id;
-      deviceId = message.deviceId;
-    } catch (e) {
-      debug('can not parse irData object from message object');
-      const err = new Error();
-      err.statusCode = 500;
-      return cb(err);
+    message = message || {};
+    const messageId = message.id;
+    const deviceId = message.deviceId;
+    // 引数オブジェクトのチェック
+    if (!messageId) {
+      debug('{{message.id}} is required object');
+      return cb(CommonError.BadRequestError);
+    }
+    if (!deviceId) {
+      debug('{{message.deviceId}} is required object');
+      return cb(CommonError.BadRequestError);
     }
 
     // デバイスがオンラインか確認
     device.isConnected(deviceId, (err) => {
-      // オンラインでなければエラー
-      if (err) {
-        const err = new Error();
-        err.statusCode = 503;
-        return cb(err);
-      }
+      if (err) return cb(err);
+
       // デバイスに赤外線データを送信する
       iotClient.receiveMessage(deviceId, messageId, (err) => {
         if (err) {
           // コマンドの送信に失敗した場合
-          const err = new Error();
-          err.statusCode = 500;
-          return cb(err);
+          debug(`could not send message ${JSON.stringify({deviceId: deviceId, messageId: messageId})}`);
+          return cb(CommonError.InternalServerError);
         } else {
           return cb();
         }
@@ -154,7 +146,7 @@ module.exports = function(device) {
       device.sendMessage(message, (err, result) => {
         itemsProcessed++;
         if (err) {
-          debug(`failed sendMessage ${message.messageId}`);
+          debug(`could not send message ${message.messageId}`);
         } else {
           resultMessages.push(result);
         }
@@ -162,9 +154,8 @@ module.exports = function(device) {
         if (itemsProcessed === array.length) {
           if (resultMessages.length === 0) {
             // 一つも成功しなかった場合
-            const err = new Error();
-            err.statusCode = 500;
-            return cb(err);
+            debug('none of the messages sent');
+            return cb(CommonError.InternalServerError);
           } else {
             // 1つ以上成功した場合、成功したメッセージのリストを返却
             return cb(null, resultMessages);
@@ -178,11 +169,11 @@ module.exports = function(device) {
   device.observe('before delete', (ctx, next) => {
     const id = ctx.where.id;
     const messageModel = ctx.Model.app.models.message;
-    messageModel.destroyAll({deviceId: id}, (err, info) => {
+    messageModel.destroyAll({deviceId: id}, (err) => {
       if (err) {
         return next(err);
       }
-      debug(`all massage deleted in device [${id}]: ${info}`);
+      debug(`all massages are deleted in device [${id}]`);
     });
     next();
   });
