@@ -19,21 +19,11 @@ const loopbackPassport = require('loopback-component-passport');
 const PassportConfigurator = loopbackPassport.PassportConfigurator;
 const passportConfigurator = new PassportConfigurator(app);
 
-// Build the providers/passport config
-let config = {};
-try {
-  config = require('./providers.js');
-} catch (err) {
-  console.trace(err);
-  process.exit(1);
-}
-
 // boot scripts mount components like REST API
 boot(app, __dirname);
 
 // The access token is only available after boot
-app.middleware('auth', loopback.token({
-  model: app.models.accessToken,
+app.middleware('auth', loopback.token({model: app.models.accessToken,
   currentUserLiteral: 'me',
 }));
 
@@ -44,6 +34,7 @@ app.middleware('parse', bodyParser.urlencoded({
   extended: true,
 }));
 
+// session configurations
 app.set('trust proxy', 1);
 app.middleware('session:before', cookieParser(app.get('cookieSecret')));
 app.middleware('session', session({
@@ -57,6 +48,15 @@ app.middleware('session', session({
   },
 }));
 
+// Build the providers/passport config
+let config = {};
+try {
+  config = require('./providers.js');
+} catch (err) {
+  console.trace(err);
+  process.exit(1);
+}
+
 passportConfigurator.init();
 
 passportConfigurator.setupModels({
@@ -64,14 +64,15 @@ passportConfigurator.setupModels({
   userIdentityModel: app.models.userIdentity,
   userCredentialModel: app.models.userCredential,
 });
+
 for (const s in config) {
   const c = config[s];
   c.session = c.session !== false;
   passportConfigurator.configureProvider(s, c);
 }
 
+// start the web server
 app.start = function() {
-  // start the web server
   return app.listen(() => {
     app.emit('started');
     const baseUrl = app.get('url').replace(/\/$/, '');

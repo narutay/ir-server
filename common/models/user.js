@@ -2,9 +2,11 @@
 
 module.exports = function(user) {
   const debug = require('debug')('irserver:user');
-  const request = require('request');
-  const NaturalLanguageClassifierV1 = require('watson-developer-cloud/natural-language-classifier/v1');
-  const AuthorizationV1 = require('watson-developer-cloud/authorization/v1');
+  const CommonError = require('../../lib/error');
+  // Watson STTのクライアント
+  const sttClient = require('../../lib/stt-client');
+  // Watson NLCのクライアント
+  const nlcClient = require('../../lib/nlc-client');
 
   // user.disableRemoteMethodByName('create');
   user.disableRemoteMethodByName('count');
@@ -41,27 +43,41 @@ module.exports = function(user) {
   user.disableRemoteMethodByName('prototype.__get__accessTokens');
   user.disableRemoteMethodByName('prototype.__updateById__accessTokens');
 
+  /**
+   * デバイスから赤外線を送信するAPI
+   *
+   * @param {String} id ユーザID
+   * @param {String} deviceId 赤外線を送信するデバイスのID
+   * @param {String} messageId 赤外線データのメッセージIDの
+   * @callback {Function} next
+   */
   user.send = function(id, deviceId, messageId, next) {
     const app = user.app;
     const message = app.models.message;
-    message.findMessage(messageId, (err, result) =>{
-      if (err || result === null) {
-        return next(err);
+    const device = app.models.device;
+
+    // messageIdに登録されている赤外線データを検索する
+    message.findMessage(messageId, (err, message) =>{
+      if (err || !message) {
+        // 対象の赤外線データが存在しない場合
+        return next(CommonError.NotFoundError);
       }
 
-      const appClient = app.get('iotAppClient');
-      const irData = result.data;
-      const data = JSON.stringify({irData: irData});
-      appClient.publishToDevice(deviceId, 'send', data, (err) => {
+      // 赤外線メッセージをデバイスから送信
+      device.sendMessage(message, (err, result) => {
         if (err) {
           return next(err);
         } else {
+          debug(`success send message ${JSON.stringify(result)}`);
           return next();
         }
       });
     });
   };
 
+  /**
+   * user.send()のリモートメソッド
+   */
   user.remoteMethod('send', {
     accepts: [
       {arg: 'id', type: 'string'},
@@ -72,80 +88,42 @@ module.exports = function(user) {
     http: {path: '/:id/devices/:nk/send', verb: 'post'},
   });
 
-  function getClass(text, cb) {
-    const minConfidence = 0.5;
-    const app = user.app;
-    const nlcUrl = app.get('nlcUrl');
-    const nlcUsername = app.get('nlcUsername');
-    const nlcPassword = app.get('nlcPassword');
-    const classifierId = app.get('nlcClassifierId');
-
-    const classifier = new NaturalLanguageClassifierV1({
-      username: nlcUsername,
-      password: nlcPassword,
-      url: nlcUrl,
-    });
-
-    const question = {
-      text: text,
-      classifier_id: classifierId,
-    };
-    debug(`request NLC classify classifierId: [${classifierId}] text: ${text}`);
-    classifier.classify(question, (err, response) => {
-      if (err) {
-        debug(`failed classifierId: [${classifierId}] text: ${text}`);
-        const err = new Error();
-        err.statusCode = 500;
-        cb(err);
-      } else {
-        const topClass = response.classes[0];
-        const confidence = topClass.confidence;
-        const className = topClass.class_name;
-        if (topClass.confidence < minConfidence) {
-          debug(`class [${className}] confidence ${confidence} less than ${minConfidence}`);
-          const err = new Error();
-          err.statusCode = 404;
-          cb(err);
-        } else {
-          debug(`found class [${className}] confidence: ${confidence}`);
-          return cb(null, className);
-        }
-      }
-    });
-  }
-
-  function sendAllMessage(messages, cb) {
-    const app = user.app;
-    const appClient = app.get('iotAppClient');
-    let itemsProcessed = 0;
-    let publishError = null;
-    messages.forEach((message, index, array) => {
-      const irData = message.data;
-      const deviceId = message.deviceId;
-      const data = JSON.stringify({irData: irData});
-      appClient.publishToDevice(deviceId, 'send', data, (err) => {
-        itemsProcessed++;
-        if (err) {
-          publishError = err;
-        }
-        if (itemsProcessed === array.length) {
-          if (publishError) {
-            cb(err);
-          } else {
-            return cb(null, messages);
-          }
-        }
-      });
-    });
-  }
-
+  /**
+   * 自然言語（話言葉）などから対象の分類を抽出し、最適なな赤外線を送信するAPI
+   *
+   * @param {String} id ユーザID
+   * @param {String} text 自然言語をテキスト化したもの。どのような文章でもよい。
+   * @param {boolean} dry trueの場合候補のメッセージ抽出のみし、実際にデバイスから送信はしない
+   * @callback {Function} next
+   */
   user.suggest = function(id, text, dry, next) {
     const app = user.app;
     const message = app.models.message;
-    getClass(text, (err, messageClass) => {
-      if (err) {
-        return next(err);
+    const nlcEnabled = app.get('nlcEnabled');
+    if (!nlcEnabled) {
+      debug('NLC is disabled');
+      return next(CommonError.NotImplementedError);
+    }
+    const nlcCredentials = app.get('nlcCredentials');
+    const classifierId = app.get('nlcClassifierId');
+    const classifier = new nlcClient(nlcCredentials, classifierId);
+    const device = app.models.device;
+
+    classifier.classify(text, (err, messageClass) => {
+      if (err || messageClass === undefined) {
+        if (err.statusCode === 404) {
+          // 信頼率が高いクラスが見つからなかった場合Not Found
+          debug(`not found class. text: ${text}`);
+          return next(CommonError.NotFoundError);
+        } else {
+          // それ以外は500
+          debug(`failed classfy. text: ${text}`);
+          return next(CommonError.InternalServerError);
+        }
       }
+
+      // 登録されているメッセージから登録されているクラス名で検索する
+      // データが未登録のものは除外する
       const filter = {
         and: [
           {userId: id},
@@ -154,30 +132,41 @@ module.exports = function(user) {
         ],
       };
       message.find({where: filter}, (err, result) => {
+        result = result || {};
+        // 検索が失敗した場合
         if (err) {
-          return next(err);
+          return next(CommonError.InternalServerError);
         }
+
+        // 検索に成功したが、該当のメッセージが存在しなかった場合Not Found
         if (result.length === 0) {
-          debug(`no message found hav class [${messageClass}]`);
-          const err = new Error();
-          err.statusCode = 404;
-          next(err);
+          debug(`no message found. class: [${messageClass}]`);
+          next(CommonError.NotFoundError);
         }
+
         if (!dry) {
-          sendAllMessage(result, (err, messages) => {
+          // dryオプションが無効な場合、
+          // 検索結果のすべての赤外線メッセージをデバイスから送信する
+          device.sendAllMessage(result, (err, messages) => {
             if (err) {
+              // すべての送信に失敗した場合
               return next(err);
             } else {
+              // 送信に成功した場合、成功したメッセージの一覧を返却する
               return next(null, messages);
             }
           });
         } else {
+          // dryオプションが有効な場合、検索結果のみを返却する
           return next(null, result);
         }
       });
     });
   };
 
+  /**
+   * user.suggest()のリモートメソッド
+   */
   user.remoteMethod('suggest', {
     accepts: [
       {arg: 'id', type: 'string'},
@@ -188,40 +177,36 @@ module.exports = function(user) {
     http: {path: '/:id/suggest', verb: 'post'},
   });
 
-  function getSttToken(cb) {
-    const app = user.app;
-    const sttUrl = app.get('sttUrl');
-    const sttUsername = app.get('sttUsername');
-    const sttPassword = app.get('sttPassword');
-
-    const authorization = new AuthorizationV1({
-      username: sttUsername,
-      password: sttPassword,
-      url: 'https://stream.watsonplatform.net/authorization/api',
-    });
-
-    authorization.getToken({url: sttUrl}, (err, token) => {
-      if (err || !token) {
-        debug(`failed get STT Token by use ${sttUsername} err: ${err}`);
-        const err = new Error();
-        err.statusCode = 500;
-        return cb(err);
-      } else {
-        return cb(null, {token: token});
-      }
-    });
-  }
-
+  /**
+   * Watson STTのアクセストークン発行API。
+   * 中継すると遅延が大きいことから、クライアントから直接Watson APIを実行する。
+   * Watson STTのクレデンシャルは配布できないため、
+   * 短期間利用できるトークンをクライアントごとに配布する。
+   *
+   * @param {String} id ユーザID
+   * @callback {Function} next
+   */
   user.suggestToken = function(id, next) {
-    getSttToken((err, token) => {
+    const app = user.app;
+    const nlcEnabled = app.get('nlcEnabled');
+    if (!nlcEnabled) {
+      debug('NLC is disabled');
+      return next(CommonError.NotImplementedError);
+    }
+    const sttCredentials = app.get('sttCredentials');
+    const client = new sttClient(sttCredentials);
+    client.getSttToken((err, token) => {
       if (err) {
-        return next(err);
+        return next(CommonError.InternalServerError);
       } else {
         return next(null, token);
       }
     });
   };
 
+  /**
+   * user.suggestToken()のリモートメソッド
+   */
   user.remoteMethod('suggestToken', {
     accepts: [
       {arg: 'id', type: 'string'},
