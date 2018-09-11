@@ -102,14 +102,14 @@ module.exports = function(message) {
           return;
         }
 
-        // statusをロールバックする
-        const messageData = {status: afterStatus};
+        // statusをinitializedに初期化する
+        const messageData = {status: 'initialized', data: null};
         message.update({id: messageId}, messageData, (err) => {
           if (err) {
-            debug(`message [${messageId}] status cloud not change: ${beforeStatus} => ${afterStatus}`);
+            debug(`message [${messageId}] status cloud not change: ${beforeStatus} => initialized`);
             return;
           } else {
-            debug(`message [${messageId}] is changed: ${beforeStatus} => ${afterStatus}`);
+            debug(`message [${messageId}] is changed: ${beforeStatus} => initialized`);
           }
         });
       });

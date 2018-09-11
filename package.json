@@ -8,8 +8,9 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "LANG=en node .",
+    "start": "node .",
     "build": "webpack",
+    "watch": "npx webpack --watch",
     "test": "NODE_ENV=test DEBUG='irserver*' nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "jquery": "^3.3.1",
     "jsrender": "^0.9.90",
     "ladda": "^1.0.6",
+    "localstorage-ttl": "^1.0.2",
     "loopback": "^3.19.0",
     "loopback-boot": "^2.27.1",
     "loopback-component-explorer": "^5.4.0",
