@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "start": "node .",
     "build": "webpack",
-    "watch": "npx webpack --watch",
+    "watch": "webpack --watch",
     "test": "NODE_ENV=test DEBUG='irserver*' nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "connect-ensure-login": "^0.1.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.5.2",
+    "cryptiles": "^4.1.2",
     "dotenv": "^6.0.0",
     "express-flash": "0.0.2",
     "express-session": "^1.15.6",
@@ -29,8 +30,9 @@
     "ibmiotf": "^0.2.41",
     "jquery": "^3.3.1",
     "jsrender": "^0.9.90",
-    "ladda": "^2.0.1",
+    "ladda": "^1.0.6",
     "localstorage-ttl": "^1.0.2",
+    "lodash": "^4.17.5",
     "loopback": "^3.22.2",
     "loopback-boot": "^2.27.1",
     "loopback-component-explorer": "^6.2.0",
@@ -41,7 +43,9 @@
     "pug": "^2.0.3",
     "serve-favicon": "^2.5.0",
     "snackbarjs": "^1.1.0",
+    "sshpk": "^1.13.2",
     "strong-error-handler": "^3.2.0",
+    "unzipper": "^0.8.13",
     "watson-developer-cloud": "^3.9.1",
     "watson-speech": "^0.35.0",
     "whatwg-fetch": "^3.0.0"
