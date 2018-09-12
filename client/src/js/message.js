@@ -136,11 +136,45 @@ class MessageView {
       }
       itemsProcessed++;
       if (itemsProcessed === array.length) {
+        // メッセージカードを描画
         const messageTemplate = $.templates('#messageCardTemplate');
         const messageOutput = messageTemplate.render(messages);
         this.$messageList.html(messageOutput);
+        // イベント登録=>メッセージ送信ボタンクリック
+        this.$sendMessageButton = this.$messageList.find('[id^=send-btn-]');
+        this.$sendMessageButton.on('click', (event) => {
+          const button = $(event.currentTarget);
+          const messageId = this.getMessageId(button);
+          const deviceId = this.getDeviceId(button);
+          const opt = {};
+          opt.deviceId = deviceId;
+          opt.messageId = messageId;
+          $(this).triggerHandler('sendMessage', opt);
+        });
       }
     });
+  }
+
+  /**
+   * 親要素のDeviceカードからdeviceIdを取得する
+   *
+   * @param {Object} element jQueryのエレメント
+   * @memberof DeviceView
+   */
+  getDeviceId($element) {
+    const $deviceCard = $element.closest('#deviceCard');
+    return $deviceCard.data('deviceid');
+  }
+
+  /**
+   * 親要素のDeviceカードからdeviceIdを取得する
+   *
+   * @param {Object} element jQueryのエレメント
+   * @memberof DeviceView
+   */
+  getMessageId($element) {
+    const $messageCard = $element.closest('#messageCard');
+    return $messageCard.data('messageid');
   }
 }
 

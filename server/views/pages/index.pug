@@ -192,7 +192,7 @@ block scripts
             span.badge.badge-pill.badge-secondary.ml-2.mt-1 {{:classDN}}
           .media.text-muted.d-flex.justify-content-end.align-items-center
             div {{if status === "ready"}}
-              button.btn.btn-primary.btn-raised.send-btn.ladda-button(id="send-btn-{{:id}}", ttype="submit", data-style="slide-down", data-size="l")
+              button.btn.btn-primary.btn-raised.send-btn.ladda-button(id="send-btn-{{:id}}", type="submit", data-style="slide-down", data-size="l")
                 span.ladda-label 送信 {{/if}}
             div {{if status !== "ready"}}
               button.btn.btn-raised.btn-secondary.receive-btn(data-toggle="modal", data-target="#receiveMessageModal") データ登録 {{/if}}

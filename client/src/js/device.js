@@ -423,21 +423,13 @@ class DeviceView {
           deviceId,
           messagesObj
         );
+      $(device.messageView).on('sendMessage', (e, opt) => {
+        $(this).trigger('sendMessage', opt);
+      });
       device.messageView.render();
       // 最後の要素でのアクション
       itemsProcessed++;
       if (itemsProcessed === array.length) {
-        // イベント登録=>メッセージ送信ボタンクリック
-        this.$sendMessageButton = this.$element.find('[id^=send-btn-]');
-        this.$sendMessageButton.on('click', (event) => {
-          const button = $(event.currentTarget);
-          const messageId = this.getMessageId(button);
-          const deviceId = this.getDeviceId(button);
-          const opt = {};
-          opt.deviceId = deviceId;
-          opt.messageId = messageId;
-          $(this).triggerHandler('sendMessage', opt);
-        });
         // Deviceモデルにデータをロードする
         this.fadeIn();
       }
