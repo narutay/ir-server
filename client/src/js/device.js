@@ -6,7 +6,7 @@ const Message = require('./message');
 const Ladda = require('ladda');
 
 class Device {
- /**
+  /**
   * Deviceのコンストラクタ
   * APIの戻り値をそのまま格納する
   *
@@ -72,6 +72,8 @@ class Devices {
     const deviceId = device.id;
     this.devices.some((v, i) => {
       if (v.id === deviceId) {
+        device.messages = this.devices[i].messages;
+        device.messageView = this.devices[i].messageView;
         this.devices[i] = device;
         $(this).trigger('change');
         return;
@@ -172,7 +174,7 @@ class DeviceView {
       this.$newDeviceSerial.val(null);
     });
 
-     // イベント登録=>デバイス追加ボタンクリック
+    // イベント登録=>デバイス追加ボタンクリック
     this.$addDeviceButton.on('click', () => {
       const newDeviceName = this.$newDeviceName.val();
       const newDeviceSerial = this.$newDeviceSerial.val();
@@ -189,8 +191,11 @@ class DeviceView {
       const deviceId = this.getDeviceId(button);
       const device = this.devices.findById(deviceId);
       const deviceName = device.name;
-      this.$editDeviceSerial.text(`シリアル番号 ： ${deviceId}`);
+      const deviceSerial = device.serial;
+      this.$editDeviceSerial.text(`シリアル番号 ： ${deviceSerial}`);
       this.$editDeviceName.val(deviceName);
+      this.$editDeviceModal.data('deviceid', deviceId);
+      this.$editDeviceModal.data('serial', deviceSerial);
     });
     this.$editDeviceModal.on('shown.bs.modal', () => {
       this.$editDeviceName.focus();
@@ -200,15 +205,18 @@ class DeviceView {
     this.$editDeviceModal.on('hidden.bs.modal', () => {
       this.$editDeviceName.val(null);
       this.$editDeviceSerial.text('シリアル番号 ： ');
+      this.$editDeviceModal.data('deviceid', null);
+      this.$editDeviceModal.data('serial', null);
     });
 
-     // イベント登録=>デバイス編集ボタンクリック
+    // イベント登録=>デバイス編集ボタンクリック
     this.$editDeviceButton.on('click', () => {
+      const deviceId = this.$editDeviceModal.data('deviceid');
+      const deviceSerial = this.$editDeviceModal.data('serial');
       const deviceName = this.$editDeviceName.val();
-      const deviceSerial = this.$editDeviceSerial.val();
       $(this).triggerHandler(
         'editDevice',
-        {deviceName: deviceName, deviceSerial: deviceSerial}
+        {name: deviceName, serial: deviceSerial, deviceId: deviceId}
       );
       this.$editDeviceModal.modal('hide');
     });
@@ -246,7 +254,7 @@ class DeviceView {
       this.$addMessageModal.data('deviceid', null);
     });
 
-     // イベント登録=>メッセージ追加ボタンクリック
+    // イベント登録=>メッセージ追加ボタンクリック
     this.$addMessageButton.on('click', () => {
       const deviceId = this.$addMessageModal.data('deviceid');
       const newMessageName = this.$newMessageName.val();
@@ -289,7 +297,7 @@ class DeviceView {
       this.$editMessageModal.data('messageid', null);
     });
 
-     // イベント登録=>メッセージ編集ボタンクリック
+    // イベント登録=>メッセージ編集ボタンクリック
     this.$editMessageButton.on('click', () => {
       const deviceId = this.$editMessageModal.data('deviceid');
       const messageId = this.$editMessageModal.data('messageid');
@@ -419,10 +427,10 @@ class DeviceView {
       const deviceId = device.id;
       const messagesObj = device.messages;
       device.messageView = new Message.MessageView(
-          this.$element,
-          deviceId,
-          messagesObj
-        );
+        this.$element,
+        deviceId,
+        messagesObj
+      );
       $(device.messageView).on('sendMessage', (e, opt) => {
         $(this).trigger('sendMessage', opt);
       });
@@ -547,7 +555,6 @@ class DeviceView {
   cancelSuggest() {
     this.$suggestModal.modal('hide');
   }
-
 }
 
 module.exports.Device = Device;

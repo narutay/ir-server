@@ -77,10 +77,11 @@
     $ bx app env-set irserver GOOGLE_CLIENT_SECRET <クライアントシークレット>
     $ bx app env-set irserver GOOGLE_CALLBACK_URL <コールバックURL>
 
-### Cookie、Sessionシークレットの登録
+### Auth0のClient ID, Client Secretの 登録
 
-    $ bx app env-set irserver COOKIE_SECRET <任意の複雑な文字列>
-    $ bx app env-set irserver SESSION_SECRET <任意の複雑な文字列>
+    $ bx app env-set irserver AUTH0_DOMAIN <Auth0のドメイン>
+    $ bx app env-set irserver AUTH0_AUDIENCE <Auth0のClient ID>
+    $ bx app env-set irserver AUTH0_SECRET <Auth0のClient Secret>
 
 ## サービスをデプロイする
 

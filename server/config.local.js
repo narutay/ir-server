@@ -40,13 +40,14 @@ module.exports = {
   hostname: process.env.VCAP_APP_HOST | '0.0.0.0',
   port: process.env.PORT || 3000,
   restApiRoot: '/api',
-  cookieSecret: process.env.COOKIE_SECRET || 'keyboard cat',
-  sessionSecret: process.env.SESSION_SECRET || 'keyboard cat',
   sessionSecure: sessionSecure,
   iotCredentials: iotCredentials,
   nlcCredentials: nlcCredentials,
   sttCredentials: sttCredentials,
   nlcClassifierName: process.env.NLC_CLASSIFIER_NAME || 'home_control',
+  auth0Domain: process.env.AUTH0_DOMAIN || 'yourdomain',
+  auth0Audience: process.env.AUTH0_AUDIENCE || 'yoursecret',
+  auth0Secret: process.env.AUTH0_SECRET || 'yoursecret',
   messageClassDisplayName: messageClassDisplayName,
   remoting: {
     errorHandler: {

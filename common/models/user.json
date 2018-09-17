@@ -13,14 +13,6 @@
       "defaultFn": "uuidv4",
       "id": true
     },
-    "realm": {
-      "type": "string",
-      "length": 128
-    },
-    "username": {
-      "type": "string",
-      "length": 128
-    },
     "password": {
       "type": "string",
       "required": true,
@@ -30,11 +22,6 @@
       "type": "string",
       "required": true,
       "length": 256
-    },
-    "emailVerified": "boolean",
-    "verificationToken": {
-      "type": "string",
-      "length": 128
     }
   },
   "validations": [],
@@ -42,21 +29,6 @@
     "devices": {
       "type": "hasMany",
       "model": "device",
-      "foreignKey": "userId"
-    },
-    "accessTokens": {
-      "type": "hasMany",
-      "model": "accessToken",
-      "foreignKey": "userId"
-    },
-    "identities": {
-      "type": "hasMany",
-      "model": "userIdentity",
-      "foreignKey": "userId"
-    },
-    "credentials": {
-      "type": "hasMany",
-      "model": "userCredential",
       "foreignKey": "userId"
     }
   },

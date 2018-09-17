@@ -10,7 +10,12 @@
   "properties": {
     "id": {
       "type": "string",
-      "id": true,
+      "length": 36,
+      "defaultFn": "uuidv4",
+      "id": true
+    },
+    "serial": {
+      "type": "string",
       "required": true,
       "length": 128
     },

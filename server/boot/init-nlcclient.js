@@ -5,12 +5,12 @@ module.exports = function(app) {
   const NaturalLanguageClassifierV1 = require('watson-developer-cloud/natural-language-classifier/v1');
   const credentials = app.get('nlcCredentials');
   const classifierName = app.get('nlcClassifierName');
-  const classifier = new NaturalLanguageClassifierV1(credentials);
-
   app.set('nlcEnabled', false);
   if (!credentials || !classifierName) {
     return;
   }
+
+  const classifier = new NaturalLanguageClassifierV1(credentials);
   classifier.listClassifiers({}, (err, response) => {
     if (err || !response) {
       debug(`not found classifier by name ${classifierName}`);

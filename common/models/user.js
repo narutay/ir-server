@@ -8,13 +8,13 @@ module.exports = function(user) {
   // Watson NLCのクライアント
   const nlcClient = require('../../lib/nlc-client');
 
-  // user.disableRemoteMethodByName('create');
+  user.disableRemoteMethodByName('create');
   user.disableRemoteMethodByName('count');
   // user.disableRemoteMethodByName('find');
   // user.disableRemoteMethodByName('findById');
-  // user.disableRemoteMethodByName('deleteById');
+  user.disableRemoteMethodByName('deleteById');
   user.disableRemoteMethodByName('patchAttributes');
-  // user.disableRemoteMethodByName('replaceById');
+  user.disableRemoteMethodByName('replaceById');
 
   user.disableRemoteMethodByName('confirm');
   user.disableRemoteMethodByName('createChangeStream');
@@ -42,6 +42,12 @@ module.exports = function(user) {
   user.disableRemoteMethodByName('prototype.__findById__accessTokens');
   user.disableRemoteMethodByName('prototype.__get__accessTokens');
   user.disableRemoteMethodByName('prototype.__updateById__accessTokens');
+
+  user.disableRemoteMethodByName('changePassword');
+  user.disableRemoteMethodByName('resetPassword');
+  user.disableRemoteMethodByName('setPassword');
+  user.disableRemoteMethodByName('login');
+  user.disableRemoteMethodByName('logout');
 
   /**
    * デバイスから赤外線を送信するAPI

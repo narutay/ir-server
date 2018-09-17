@@ -5,7 +5,6 @@ const ls = require('localstorage-ttl');
 const recognizeMicrophone = require('watson-speech/speech-to-text/recognize-microphone');
 
 class STTClient {
-
   /**
    * Watson STT Clientを初期化
    * View からユーザーのイベントを受け取る
@@ -24,7 +23,7 @@ class STTClient {
    * @param {Object} token STTの一時トークンオブジェクト
    */
   stream(cb) {
-    this.getToken((err, token) => {
+    this.getSttToken((err, token) => {
       if (err) {
         return cb(err);
       }
@@ -37,6 +36,10 @@ class STTClient {
     });
   }
 
+  getToken() {
+    return localStorage.getItem('id_token');
+  }
+
   /**
    * Watson STT の一時トークンを取得する
    *
@@ -44,15 +47,19 @@ class STTClient {
    * @param {Error} err Error object
    * @param {Object} token STTの一時トークンオブジェクト
    */
-  getToken(cb) {
+  getSttToken(cb) {
     const currentToken = ls.get('token');
     if (currentToken) {
       return cb(null, currentToken);
     }
     const url = '/api/users/me/suggestToken';
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       timeout: 10000,
     });
 
