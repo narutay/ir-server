@@ -62,8 +62,8 @@ const async = require('async');
 const tables = ['user', 'device', 'message'];
 const ds = app.datasources.irdb;
 async.eachSeries(tables, (table, callback) => {
-  debug(`Automigrate table [${table}]`, ds.adapter.name);
-  ds.automigrate(table, (er) => {
+  debug(`Autoupdate table [${table}]`, ds.adapter.name);
+  ds.autoupdate(table, (er) => {
     if (!er) {
       debug(`Table [${table}] created in `, ds.adapter.name);
       callback(null);
@@ -74,9 +74,9 @@ async.eachSeries(tables, (table, callback) => {
   });
 }, (err) => {
   if (!err) {
-    debug('automigrate completed');
+    debug('autoupdate completed');
   } else {
-    debug(`automigrate failed ${err}`);
+    debug(`autoupdate failed ${err}`);
   }
 });
 
