@@ -1,6 +1,5 @@
 'use strict';
 
-require('whatwg-fetch');
 const Device = require('./device');
 const Message = require('./message');
 const STTClient = require('./stt-client');
@@ -10,7 +9,6 @@ const info = notification.info;
 const alert = notification.alert;
 
 class Controller {
-
   /**
    * DeviceのModel と View を初期化
    * View からユーザーのイベントを受け取る
@@ -69,7 +67,7 @@ class Controller {
 
     // 提案機能のトークン取得
     this.sttClient = new STTClient();
-    this.sttClient.getToken((err) => {
+    this.sttClient.getSttToken((err) => {
       if (!err) {
         this.deviceView.enableSuggest();
       }
@@ -99,6 +97,10 @@ class Controller {
     });
   }
 
+  getToken() {
+    return localStorage.getItem('id_token');
+  }
+
   /**
    * サーバからDeviceの一覧を取得する
    *
@@ -108,8 +110,12 @@ class Controller {
    * @memberof Controller
    */
   getDeviceList(cb) {
+    const token = this.getToken();
     $.ajax({
       type: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       dataType: 'json',
       url: '/api/users/me/devices?filter[order]=name ASC',
       timeout: 10000,
@@ -132,11 +138,15 @@ class Controller {
   addDevice(opt) {
     opt = opt || {};
     const sendUrl = '/api/users/me/devices';
+    const token = this.getToken();
     const request = $.ajax({
       url: sendUrl,
       type: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: {
-        id: opt.deviceSerial,
+        serial: opt.deviceSerial,
         name: opt.deviceName,
       },
       timeout: 10000,
@@ -167,9 +177,13 @@ class Controller {
     opt = opt || {};
     const deviceId = opt.deviceId;
     const url = `/api/users/me/devices/${deviceId}`;
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: opt,
       timeout: 10000,
     });
@@ -195,9 +209,13 @@ class Controller {
    */
   deleteDevice(deviceId) {
     const url = `/api/users/me/devices/${deviceId}`;
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       timeout: 10000,
     });
 
@@ -222,8 +240,12 @@ class Controller {
    * @memberof Controller
    */
   getMessageList(deviceId, cb) {
+    const token = this.getToken();
     $.ajax({
       type: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       dataType: 'json',
       url: `/api/users/me/devices/${deviceId}/messages?` +
         'filter[fields][id]=true&filter[fields][deviceId]=true' +
@@ -251,9 +273,13 @@ class Controller {
   addMessage(deviceId, opt) {
     opt = opt || {};
     const sendUrl = `/api/users/me/devices/${deviceId}/messages`;
+    const token = this.getToken();
     const request = $.ajax({
       url: sendUrl,
       type: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: opt,
       timeout: 10000,
     });
@@ -284,9 +310,13 @@ class Controller {
     opt = opt || {};
     const url = `/api/users/me/devices/${deviceId}` +
       `/messages/${messageId}`;
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: opt,
       timeout: 10000,
     });
@@ -315,9 +345,13 @@ class Controller {
   deleteMessage(deviceId, messageId) {
     const url = `/api/users/me/devices/${deviceId}` +
       `/messages/${messageId}`;
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       timeout: 10000,
     });
 
@@ -342,9 +376,13 @@ class Controller {
   sendMessage(deviceId, messageId) {
     this.deviceView.sendStart(messageId);
     const sendUrl = `/api/users/me/devices/${deviceId}/send`;
+    const token = this.getToken();
     const request = $.ajax({
       url: sendUrl,
       type: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: {messageId: messageId},
       timeout: 10000,
     });
@@ -379,9 +417,13 @@ class Controller {
   receiveMessage(deviceId, messageId) {
     const data = {status: 'receiving'};
     const url = `/api/users/me/devices/${deviceId}/messages/${messageId}`;
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: data,
       timeout: 10000,
     });
@@ -399,9 +441,13 @@ class Controller {
           'filter[fields][id]=true&filter[fields][deviceId]=true' +
           '&filter[fields][status]=true&filter[fields][name]=true' +
           '&filter[fields][class]=true';
+        const token = this.getToken();
         const poll = $.ajax({
           url: url,
           type: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           dataType: 'json',
           timeout: 10000,
         });
@@ -511,9 +557,13 @@ class Controller {
     const data = {text: text};
 
     const url = '/api/users/me/suggest';
+    const token = this.getToken();
     const request = $.ajax({
       url: url,
       type: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: data,
       timeout: 10000,
     });

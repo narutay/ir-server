@@ -13,9 +13,6 @@ module.exports = function(app) {
       password: 'pass',
     };
     User.create(userData, (err, user) => {
-      User.login({username: 'test', password: 'pass'}, (err, token) => {
-        console.log(`access token: ${token.id}`);
-      });
       const deviceData = {
         userId: user.id,
         id: 'testdeviceid',

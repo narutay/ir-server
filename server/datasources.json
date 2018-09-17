@@ -2,5 +2,9 @@
   "irdb": {
     "name": "irdb",
     "connector": "memory"
+  },
+  "acldb": {
+    "name": "acldb",
+    "connector": "memory"
   }
 }

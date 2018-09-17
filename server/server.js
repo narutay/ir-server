@@ -3,73 +3,82 @@
 const loopback = require('loopback');
 const boot = require('loopback-boot');
 const app = module.exports = loopback();
+const jwksRsa = require('jwks-rsa');
+const jwt = require('express-jwt');
+const token = require('../lib/jwt-token');
+const debug = require('debug')('irserver:boot');
 
 // Setup the view engine (pug)
 const path = require('path');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// for Passport login
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
 const bodyParser = require('body-parser');
-
-// Passport configurations
-const loopbackPassport = require('loopback-component-passport');
-const PassportConfigurator = loopbackPassport.PassportConfigurator;
-const passportConfigurator = new PassportConfigurator(app);
 
 // boot scripts mount components like REST API
 boot(app, __dirname);
 
-// The access token is only available after boot
-app.middleware('auth', loopback.token({model: app.models.accessToken,
+// API ROOT
+const apiRoot = app.get('restApiRoot');
+
+// JWT authentication
+const auth0Domain = app.get('auth0Domain');
+const auth0Audience = app.get('auth0Audience');
+const auth0Secret = app.get('auth0Secret');
+
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 360,
+    jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
+  }),
+  audience: auth0Audience,
+  issuer: `https://${auth0Domain}/`,
+  algorithms: ['RS256'],
+});
+app.middleware('auth', [`${apiRoot}`], checkJwt);
+
+const authConfig = {
+  secretKey: Buffer.from(auth0Secret).toString('base64').substr(1, 72),
+  model: 'user',
   currentUserLiteral: 'me',
-}));
+  setRequestObjectName: 'user',
+};
+
+const mapToken = token(app, authConfig);
+
+app.middleware('auth', [`${apiRoot}`], mapToken);
 
 // to support JSON-encoded bodies
-app.middleware('parse', bodyParser.json());
+app.middleware('parse', [`${apiRoot}`], bodyParser.json());
 // to support URL-encoded bodies
-app.middleware('parse', bodyParser.urlencoded({
+app.middleware('parse', [`${apiRoot}`], bodyParser.urlencoded({
   extended: true,
 }));
 
-// session configurations
-app.set('trust proxy', 1);
-app.middleware('session:before', cookieParser(app.get('cookieSecret')));
-app.middleware('session', session({
-  secret: app.get('sessionSecret'),
-  saveUninitialized: false,
-  resave: false,
-  rolling: true,
-  cookie: {
-    secure: app.get('sessionSecure'),
-    maxAge: 1000 * 60 * 60 * 24 * 14, //14 days
-  },
-}));
-
-// Build the providers/passport config
-let config = {};
-try {
-  config = require('./providers.js');
-} catch (err) {
-  console.trace(err);
-  process.exit(1);
-}
-
-passportConfigurator.init();
-
-passportConfigurator.setupModels({
-  userModel: app.models.user,
-  userIdentityModel: app.models.userIdentity,
-  userCredentialModel: app.models.userCredential,
+// db automigrate
+const async = require('async');
+const tables = ['user', 'device', 'message'];
+const ds = app.datasources.irdb;
+async.eachSeries(tables, (table, callback) => {
+  debug(`Automigrate table [${table}]`, ds.adapter.name);
+  ds.automigrate(table, (er) => {
+    if (!er) {
+      debug(`Table [${table}] created in `, ds.adapter.name);
+      callback(null);
+    } else {
+      debug(`Table [${table}] create failed in `, ds.adapter.name);
+      callback(er);
+    }
+  });
+}, (err) => {
+  if (!err) {
+    debug('automigrate completed');
+  } else {
+    debug(`automigrate failed ${err}`);
+  }
 });
-
-for (const s in config) {
-  const c = config[s];
-  c.session = c.session !== false;
-  passportConfigurator.configureProvider(s, c);
-}
 
 // start the web server
 app.start = function() {

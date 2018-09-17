@@ -12,16 +12,21 @@ module.exports = function(device) {
    * @param {String} deviceId 受信デバイスのID
    * @param {Object} payload 受信したイベントのペイロード（JSONデータ）
    */
-  device.updateDeviceStatus = function(deviceId, payload) {
+  device.updateDeviceStatus = function(deviceSerial, payload) {
     const obj = JSON.parse(payload);
     const deviceStatus = obj.Action;
-
-    device.update({id: deviceId}, {status: deviceStatus}, (err) => {
-      if (err) {
-        debug(`device [${deviceId}] status update failed: ${deviceStatus}`);
-      } else {
-        debug(`device [${deviceId}] status updated: ${deviceStatus}`);
-      }
+    device.find({where: {serial: deviceSerial}}, (err, results) => {
+      results = results || [];
+      results.forEach((result) => {
+        const deviceId = result.id;
+        device.update({id: deviceId}, {status: deviceStatus}, (err) => {
+          if (err) {
+            debug(`device [${deviceId}] status update failed: ${deviceStatus}`);
+          } else {
+            debug(`device [${deviceId}] status updated: ${deviceStatus}`);
+          }
+        });
+      });
     });
   };
 
@@ -34,7 +39,7 @@ module.exports = function(device) {
    */
   device.isConnected = function(deviceId, cb) {
     // deviceIDで検索しstatusのみを抽出する
-    device.findById(deviceId, {fields: {status: true}}, (err, result) => {
+    device.findById(deviceId, (err, result) => {
       result = result || {};
       if (err || !result.status) {
         debug(`clould not get device [${deviceId}] status`);
@@ -43,7 +48,7 @@ module.exports = function(device) {
 
       const deviceStatus = result.status;
       if (deviceStatus === 'Connect') {
-        return cb(null);
+        return cb(null, result);
       } else {
         debug(`device is not connected. current status: ${deviceStatus}`);
         return cb(CommonError.ServiceUnavailableError);
@@ -74,14 +79,16 @@ module.exports = function(device) {
     }
 
     // デバイスがオンラインか確認
-    device.isConnected(deviceId, (err) => {
+    device.isConnected(deviceId, (err, deviceResult) => {
       if (err) return cb(err);
 
+      const deviceSerial = deviceResult.serial;
+
       // デバイスに赤外線データを送信する
-      iotClient.sendMessage(deviceId, irData, (err) => {
+      iotClient.sendMessage(deviceSerial, irData, (err) => {
         if (err) {
           // 赤外線の送信に失敗した場合
-          debug(`failed send massage: ${JSON.stringify({deviceId: deviceId, irData: irData})}`);
+          debug(`failed send massage: ${JSON.stringify({deviceSerial: deviceSerial, irData: irData})}`);
           return cb(CommonError.InternalServerError);
         } else {
           return cb(null, message);
@@ -115,14 +122,15 @@ module.exports = function(device) {
     }
 
     // デバイスがオンラインか確認
-    device.isConnected(deviceId, (err) => {
+    device.isConnected(deviceId, (err, deviceResult) => {
       if (err) return cb(err);
 
       // デバイスに赤外線データを送信する
-      iotClient.receiveMessage(deviceId, messageId, (err) => {
+      const deviceSerial = deviceResult.serial;
+      iotClient.receiveMessage(deviceSerial, messageId, (err) => {
         if (err) {
           // コマンドの送信に失敗した場合
-          debug(`could not send message ${JSON.stringify({deviceId: deviceId, messageId: messageId})}`);
+          debug(`could not send message ${JSON.stringify({deviceSerial: deviceSerial, messageId: messageId})}`);
           return cb(CommonError.InternalServerError);
         } else {
           return cb();

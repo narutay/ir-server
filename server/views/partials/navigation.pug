@@ -3,17 +3,10 @@ nav.navbar.navbar-expand-md.fixed-top.navbar-light.bg-light(role='navigation')
   button.navbar-toggler.p-0.border-0(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
     span.navbar-toggler-icon
   #navbar.navbar-collapse.collapse
-    if user
-      //- User *is* logged In
-      ul.nav.navbar-nav.navbar-right
-        li.nav-item(class=url=='/'?'active':undefined)
-          a.nav-link(href='/') ホーム
-        li.nav-item
-          a.nav-link(href='/logout') サインアウト
-    else
-      //- User is *not* Logged In
-      ul.nav.navbar-nav.navbar-right
-        li.nav-item(class=url=='/'?'active':undefined)
-          a.nav-link(href='/') ホーム
-        li.nav-link(class=url=='/login'?'active':undefined)
-          a.nav-item(href='/login') サインアウト
+    ul.nav.navbar-nav.navbar-right
+      li.nav-item(class=url=='/'?'active':undefined)
+        a.nav-link(href='/') ホーム
+      li.nav-item(class='active')
+        a.nav-link#logoutNavButton(href='/') ログアウト
+      li.nav-item(class='active')
+        a.nav-link#loginNavButton(href='/') ログイン

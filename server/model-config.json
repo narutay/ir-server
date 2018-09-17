@@ -4,8 +4,7 @@
       "loopback/common/models",
       "loopback/server/models",
       "../common/models",
-      "./models",
-      "../node_modules/loopback-component-passport/lib/models"
+      "./models"
     ],
     "mixins": [
       "loopback/common/mixins",
@@ -15,7 +14,7 @@
     ]
   },
   "ACL": {
-    "dataSource": "irdb",
+    "dataSource": "acldb",
     "public": false
   },
   "device": {
@@ -23,18 +22,6 @@
     "public": false
   },
   "message": {
-    "dataSource": "irdb",
-    "public": false
-  },
-  "accessToken": {
-    "dataSource": "irdb",
-    "public": false
-  },
-  "UserCredential": {
-    "dataSource": "irdb",
-    "public": false
-  },
-  "UserIdentity": {
     "dataSource": "irdb",
     "public": false
   },
