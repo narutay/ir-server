@@ -42,6 +42,7 @@
     "loopback-component-explorer": "^6.2.0",
     "loopback-component-passport": "^3.10.0",
     "loopback-connector-dashdb": "^2.0.2",
+    "loopback-status": "^1.0.0",
     "passport-google-oauth2": "^0.1.6",
     "popper.js": "^1.14.4",
     "pug": "^2.0.3",

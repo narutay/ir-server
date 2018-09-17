@@ -1,8 +1,13 @@
 'use strict';
 
+const status = require('loopback-status');
+
 module.exports = function(app) {
-  // Install a `/` route that returns server status
+  const Status = new status({
+    models: [app.models.user],
+  });
+
   const router = app.loopback.Router();
-  router.get('/status', app.loopback.status());
+  router.get('/status', Status.health);
   app.use(router);
 };
