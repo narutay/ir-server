@@ -1,7 +1,12 @@
+- var version = self.htmlWebpackPlugin.options.data.version
 hr(style="margin-top: 50px;")
 .footer(style="text-align: center;")
-  p
-    | IR Server 1.1.0
+  p IR Server #{version}
     a(href='https://github.com/narutay') narutay
 
-//- Load Scripts
+//- jQuery
+script(src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous")
+script(src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous")
+
+//- Material Design
+script(src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous")

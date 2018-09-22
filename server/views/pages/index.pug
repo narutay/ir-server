@@ -1,7 +1,9 @@
 extends ../layouts/layout
+block vars
+  - var messageClassDisplayName = self.htmlWebpackPlugin.options.data.messageClassDisplayName
 
-block content
-  main.container(role=main)
+block contents
+  main.container(role="main")
   div#loginView(style="display: none;")
     .p-3.my-3.text-muted.text-white-50.w-100.bg-headmsg.box-shadow.rounded
       h6.mb-0.text-white IR Serverへようこそ！
