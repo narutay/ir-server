@@ -1,8 +1,10 @@
 doctype html
+block vars
 html(lang="ja")
   include ../partials/head
   body.bg-light
     include ../partials/navigation
-    include ../partials/banner
+    .container
+      block contents
     include ../partials/footer
     block scripts

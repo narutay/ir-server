@@ -42,10 +42,10 @@
   },
    "files": {
      "loopback#static": [{
-       "params": "$!./public"
-     },
-     {
-       "params": "$!../client"
+       "params": [
+          "$!./public",
+          { "maxAge": 2592000000 }
+       ]
      }]
    },
   "final": {

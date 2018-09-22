@@ -1,6 +1,5 @@
 'use strict';
 
-require('whatwg-fetch');
 const ls = require('localstorage-ttl');
 const recognizeMicrophone = require('watson-speech/speech-to-text/recognize-microphone');
 

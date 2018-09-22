@@ -8,11 +8,6 @@ const jwt = require('express-jwt');
 const token = require('../lib/jwt-token');
 const debug = require('debug')('irserver:boot');
 
-// Setup the view engine (pug)
-const path = require('path');
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
 const bodyParser = require('body-parser');
 
 // boot scripts mount components like REST API

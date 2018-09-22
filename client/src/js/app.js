@@ -1,6 +1,5 @@
 'use strict';
 
-require('bootstrap-material-design');
 const auth0 = require('auth0-js');
 
 $(document).ready(() => {
@@ -23,11 +22,14 @@ $(document).ready(() => {
     $('.navbar-collapse').collapse('hide');
   });
 
+  const hostname = location.host;
+  const protocolname = location.protocol;
+
   let tokenRenewalTimeout;
   const webAuth = new auth0.WebAuth({
-    domain: 'irserver.auth0.com',
-    clientID: 'HCY1DjSXuYhE27SZKae2DSi1xM8e-7WO',
-    redirectUri: 'https://irserver.mybluemix.net',
+    domain: AUTH0_CONFIG.domain,
+    clientID: AUTH0_CONFIG.audience,
+    redirectUri: `${protocolname}//${hostname}`,
     responseType: 'token id_token',
     scope: 'openid email',
     leeway: 60,

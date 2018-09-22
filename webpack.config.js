@@ -2,6 +2,17 @@
 
 const path = require('path');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+const messageClassDisplayName = require('./lib/message-class.json');
+const PACKAGE = require('./package.json');
+const version = PACKAGE.version;
+
+require('dotenv').config();
+const AUTH0_CONFIG = {};
+AUTH0_CONFIG.domain = process.env.AUTH0_DOMAIN;
+AUTH0_CONFIG.audience = process.env.AUTH0_AUDIENCE;
 
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
@@ -9,15 +20,45 @@ module.exports = {
     js: './client/src/js/app.js',
   },
   output: {
-    filename: 'bundle.js',
+    filename: 'bundle.[contenthash].js',
     path: path.join(__dirname, 'server/public/js'),
   },
+  externals: {
+    jquery: 'jQuery',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.pug$/,
+        use: {
+          loader: 'pug-loader',
+          options: {
+            self: true,
+          },
+        },
+      },
+    ],
+  },
   plugins: [
+    new webpack.DefinePlugin({
+      AUTH0_CONFIG: JSON.stringify(AUTH0_CONFIG),
+    }),
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',
-      'window.jQuery': 'jquery',
-      'Popper': 'popper.js/dist/umd/popper',
+    }),
+    new CleanWebpackPlugin([
+      'server/public/js/*.js',
+      'server/public/index.html',
+    ]),
+    new HtmlWebpackPlugin({
+      title: 'IR Server',
+      filename: '../index.html',
+      template: 'server/views/pages/index.pug',
+      data: {
+        messageClassDisplayName: messageClassDisplayName,
+        version: version,
+      },
     }),
   ],
 };

@@ -73,6 +73,7 @@ jspm_packages/
 
 # webpackでビルド後のjsファイル格納先
 server/public/js/*
+server/public/index.html
 
 ### Vim ###
 # Swap
