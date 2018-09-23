@@ -14,8 +14,11 @@ const AUTH0_CONFIG = {};
 AUTH0_CONFIG.domain = process.env.AUTH0_DOMAIN;
 AUTH0_CONFIG.audience = process.env.AUTH0_AUDIENCE;
 
+const mode = process.env.NODE_ENV || 'development';
+const enabledSourceMap = (mode === 'development');
+
 module.exports = {
-  mode: process.env.NODE_ENV || 'development',
+  mode: mode,
   entry: {
     js: './client/src/js/app.js',
   },
@@ -36,6 +39,26 @@ module.exports = {
             self: true,
           },
         },
+      },
+      {
+        test: /\.scss/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              url: false,
+              sourceMap: enabledSourceMap,
+              importLoaders: 2, // 2 => postcss-loader, sass-loader
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: enabledSourceMap,
+            },
+          },
+        ],
       },
     ],
   },

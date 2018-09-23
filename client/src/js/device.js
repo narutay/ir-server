@@ -124,7 +124,10 @@ class DeviceView {
    */
   constructor($element, devices) {
     this.$element = $element;
+    this.isNoDevice = true;
     this.$devices = devices;
+    this.$deviceView = $element.find('#deviceView');
+    this.$noDevice = $element.find('#noDevice');
     this.$deviceList = $element.find('#deviceList');
 
     // Deviceビューが利用するエレメントの検索・登録
@@ -423,6 +426,16 @@ class DeviceView {
     const deviceOutput = deviceTemplate.render(devices);
     this.$deviceList.html(deviceOutput);
     let itemsProcessed = 0;
+
+    // デバイスが登録されていない場合、登録メッセージを表示する。
+    if (devices.length === 0){
+      this.isNoDevice = true;
+      this.fadeIn();
+      return;
+    } else {
+      this.isNoDevice = false;
+    }
+
     devices.forEach((device, index, array) => {
       const deviceId = device.id;
       const messagesObj = device.messages;
@@ -450,7 +463,14 @@ class DeviceView {
    * @memberof DeviceView
    */
   fadeIn() {
-    this.$deviceList.fadeIn();
+    if (this.isNoDevice) {
+      this.$noDevice.show();
+      this.$deviceList.hide();
+    } else {
+      this.$noDevice.hide();
+      this.$deviceList.show();
+    }
+    this.$deviceView.fadeIn();
   }
 
   /**

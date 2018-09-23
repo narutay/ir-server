@@ -1,10 +1,12 @@
 'use strict';
 
 const auth0 = require('auth0-js');
+import '../css/style.scss';
 
 $(document).ready(() => {
   // マテリアルデザインの有効化
   $('body').bootstrapMaterialDesign();
+  $('body').show();
 
   // submitでPOSTを実行するのを無効化
   $('form').submit(() => {
