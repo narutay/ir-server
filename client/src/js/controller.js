@@ -79,6 +79,13 @@ class Controller {
         alert('デバイス一覧の取得に失敗しました');
         return;
       }
+
+      // デバイスが存在しない場合、空のデバイスをロードする
+      if (deviceList.length === 0) {
+        this.devices.load(deviceList);
+        return;
+      }
+
       // メッセージの一覧を取得する
       let itemsProcessed = 0;
       deviceList.forEach((device, index, array) => {
