@@ -1,6 +1,13 @@
 body {
   overflow-x: hidden; /* Prevent scroll on narrow devices */
-  padding-top: 56px;
+}
+
+#homeView {
+  padding-top: 51px;
+}
+
+#loginView {
+  padding-top: 20px;
 }
 
 .text-white-50 { color: rgba(255, 255, 255, .5); }
@@ -93,7 +100,7 @@ body {
   margin-bottom: 1.5rem;
 }
 
-.auth0-lock {
+.auth0-lock-input {
   font-size: 16px !important;
 }
 
