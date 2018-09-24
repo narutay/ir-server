@@ -1,6 +1,7 @@
 'use strict';
 
 const auth0 = require('auth0-js');
+const jwtDecode = require('jwt-decode');
 import '../css/style.scss';
 
 $(document).ready(() => {
@@ -28,32 +29,33 @@ $(document).ready(() => {
   const protocolname = location.protocol;
 
   let tokenRenewalTimeout;
-  const webAuth = new auth0.WebAuth({
-    domain: AUTH0_CONFIG.domain,
-    clientID: AUTH0_CONFIG.audience,
-    redirectUri: `${protocolname}//${hostname}`,
-    responseType: 'token id_token',
-    scope: 'openid email',
-    leeway: 60,
-  });
+  const lock = new Auth0Lock(AUTH0_CONFIG.audience, AUTH0_CONFIG.domain, {
+    auth: {
+      autoParseHash: true,
+      params: {
+       scope: "openid email"
+      },
+      redirect: false,
+      responseType: "token id_token",
+    },
+    languageDictionary: {
+      title: 'irserverへようこそ!'
+    },
+    theme: {
+      labeledSubmitButton: true,
+      logo: '/image/logo.png',
+      primaryColor: "#3d75ac",
+    },
+    language: 'ja',
+    container: 'loginView',
+    },
+  );
 
   const loginView = $('#loginView');
   const homeView = $('#homeView');
 
   // buttons and event listeners
-  const loginNavButton = $('#loginNavButton');
-  const loginButton = $('#loginButton');
   const logoutNavButton = $('#logoutNavButton');
-
-  loginButton.click((e) => {
-    e.preventDefault();
-    webAuth.authorize();
-  });
-
-  loginNavButton.click((e) => {
-    e.preventDefault();
-    webAuth.authorize();
-  });
 
   logoutNavButton.click((e) => {
     e.preventDefault();
@@ -62,12 +64,10 @@ $(document).ready(() => {
 
   function setSession(authResult) {
     // Set the time that the access token will expire at
-    const expiresAt = JSON.stringify(
-      authResult.expiresIn * 1000 + new Date().getTime()
-    );
+    const decoded = jwtDecode(authResult.idToken);
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expires_at', expiresAt);
+    localStorage.setItem('expires_at', decoded.exp * 1000);
     scheduleRenewal();
   }
 
@@ -89,34 +89,22 @@ $(document).ready(() => {
 
   function refreshView() {
     if (isAuthenticated()) {
-      loginNavButton.css('display', 'none');
       logoutNavButton.css('display', 'block');
       loginView.css('display', 'none');
+      lock.hide();
       homeView.fadeIn();
       const Controller = require('./controller');
       const cnt = new Controller($('body'));
     } else {
-      loginNavButton.css('display', 'block');
       logoutNavButton.css('display', 'none');
       homeView.css('display', 'none');
+      lock.show();
       loginView.fadeIn();
     }
   }
 
-  function handleAuthentication() {
-    webAuth.parseHash((err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        window.location.hash = '';
-        setSession(authResult);
-      } else if (err) {
-        console.log(err);
-      }
-      refreshView();
-    });
-  }
-
   function renewToken() {
-    webAuth.checkSession({},
+    lock.checkSession({},
       (err, result) => {
         if (!err) {
           setSession(result);
@@ -134,6 +122,15 @@ $(document).ready(() => {
     }
   }
 
-  handleAuthentication();
+  lock.on("authenticated", function(authResult) {
+    if (authResult && authResult.accessToken && authResult.idToken) {
+      window.location.hash = '';
+      setSession(authResult);
+    }
+    refreshView();
+  });
+
+  // handleAuthentication();
+  refreshView();
   scheduleRenewal();
 });
