@@ -1,8 +1,4 @@
-nav.navbar.navbar-expand-md.fixed-top.navbar-light.bg-light(role='navigation')
+nav.navbar.fixed-top.navbar-light.bg-light(role='navigation' style="display: none;")
   a.navbar-brand(href='/')
-  button.navbar-toggler.p-0.border-0(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
-    span.navbar-toggler-icon
-  #navbar.navbar-collapse.collapse
-    ul.nav.navbar-nav.navbar-right
-      li.nav-item(class='active')
-        a.nav-link#logoutNavButton(href='/') ログアウト
+  button#logoutButton.btn-logout(type='button')
+    i.material-icons exit_to_app

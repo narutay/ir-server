@@ -1,8 +1,7 @@
 'use strict';
 
-const auth0 = require('auth0-js');
 const jwtDecode = require('jwt-decode');
-import '../css/style.scss';
+require('../css/style.scss');
 
 $(document).ready(() => {
   // マテリアルデザインの有効化
@@ -26,38 +25,36 @@ $(document).ready(() => {
   });
 
   const hostname = location.host;
-  const protocolname = location.protocol;
+  const protocolname = location.protocol;  let tokenRenewalTimeout;
 
-  let tokenRenewalTimeout;
   const lock = new Auth0Lock(AUTH0_CONFIG.audience, AUTH0_CONFIG.domain, {
     auth: {
       autoParseHash: true,
       params: {
-       scope: "openid email"
+        scope: 'openid email',
       },
       redirect: false,
-      responseType: "token id_token",
+      responseType: 'token id_token',
     },
     languageDictionary: {
-      title: 'irserverへようこそ!'
+      title: '',
+      databaseEnterpriseAlternativeLoginInstructions: 'または',
     },
     theme: {
       labeledSubmitButton: true,
       logo: '/image/logo.png',
-      primaryColor: "#3d75ac",
+      primaryColor: '#3d75ac',
     },
     language: 'ja',
     container: 'loginView',
-    },
-  );
+  });
 
   const loginView = $('#loginView');
   const homeView = $('#homeView');
+  const navbar = $('.navbar');
+  const logoutButton = $('#logoutButton');
 
-  // buttons and event listeners
-  const logoutNavButton = $('#logoutNavButton');
-
-  logoutNavButton.click((e) => {
+  logoutButton.click((e) => {
     e.preventDefault();
     logout();
   });
@@ -77,7 +74,8 @@ $(document).ready(() => {
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
     clearTimeout(tokenRenewalTimeout);
-    refreshView();
+    // refreshView();
+    lock.logout({returnTo: `${protocolname}//${hostname}`});
   }
 
   function isAuthenticated() {
@@ -89,14 +87,14 @@ $(document).ready(() => {
 
   function refreshView() {
     if (isAuthenticated()) {
-      logoutNavButton.css('display', 'block');
       loginView.css('display', 'none');
       lock.hide();
+      navbar.fadeIn();
       homeView.fadeIn();
       const Controller = require('./controller');
       const cnt = new Controller($('body'));
     } else {
-      logoutNavButton.css('display', 'none');
+      navbar.css('display', 'none');
       homeView.css('display', 'none');
       lock.show();
       loginView.fadeIn();
@@ -122,7 +120,7 @@ $(document).ready(() => {
     }
   }
 
-  lock.on("authenticated", function(authResult) {
+  lock.on('authenticated', (authResult) => {
     if (authResult && authResult.accessToken && authResult.idToken) {
       window.location.hash = '';
       setSession(authResult);
