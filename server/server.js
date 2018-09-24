@@ -75,6 +75,17 @@ async.eachSeries(tables, (table, callback) => {
   }
 });
 
+// redirect to https
+app.enable('trust proxy');
+
+app.use((req, res, next) => {
+  if (req.secure || process.env.BLUEMIX_REGION === undefined) {
+    next();
+  } else {
+    res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+});
+
 // start the web server
 app.start = function() {
   return app.listen(() => {
