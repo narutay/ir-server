@@ -5,9 +5,10 @@ applications:
   memory: 256M
   buildpack: sdk-for-nodejs
   command: node .
-  domain: mybluemix.net
-  host: irserver
+  routes:
+  - route: irserver.mybluemix.net
   services:
   - sv-db2
   - sv-iot
   - sv-watson-nlc
+  - sv-watson-stt
