@@ -25,12 +25,12 @@ copy_env() {
       | sed -e '/^User-Provided:/d' \
       | sed -e '/Running Environment Variable Groups:/d' \
       | sed -e '$d')
-  
+
   if [[ -z "${vcap_services}" ]];then
       echo "ERR: not found VCAP_SERVICES in bx app environment"
       return 1
   fi
-  
+
   echo "${vcap_services}" | while read line; do
     set_env ${new_app_name} $line
   done
@@ -60,11 +60,11 @@ deploy() {
   else
     trap "rollback ${new_app_name}" ERR
     # 新アプリケーションのデプロイ
-    ${CF} push ${new_app_name} -f manifest.yml -d ${domain} --hostname ${new_app_name}
+    ${CF} push ${new_app_name} -f manifest.yml -d ${domain} --hostname ${new_app_name} --no-start
 
     # 環境変数のコピー & リステージ
     copy_env ${app_name} ${new_app_name}
-    ${CF} restage ${new_app_name}
+    ${CF} start ${new_app_name}
 
     # ssh の無効化
     ${CF} disable-ssh ${new_app_name}
