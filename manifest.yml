@@ -12,3 +12,4 @@ applications:
   - sv-iot
   - sv-watson-nlc
   - sv-watson-stt
+  - sv-monitoring

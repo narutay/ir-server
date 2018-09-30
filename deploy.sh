@@ -75,6 +75,7 @@ deploy() {
 
     # 経路のマッピング
     ${CF} map-route ${new_app_name} ${domain} ${host:+--hostname ${host}}
+    sleep 15
 
     # リネーム
     ${CF} rename ${app_name} ${old_app_name}
