@@ -103,6 +103,7 @@ vcap-local.json
 ### Other
 # 作業用ディレクトリ
 tmp/
+ssl/
 
 # deviceのソースコード公開は保留中
 device/
