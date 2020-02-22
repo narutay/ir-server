@@ -20,7 +20,7 @@
     "helmet#hsts": {
       "params": {
         "maxAge": 0,
-        "includeSubdomains": true
+        "includeSubDomains": true
       }
     },
     "helmet#hidePoweredBy": {},
@@ -40,20 +40,22 @@
       ]
     }
   },
-   "files": {
-     "loopback#static": [{
-       "params": [
-          "$!./public",
-          { "maxAge": 2592000000 }
-       ]
-     }]
-   },
+  "files": {
+    "loopback#static": [{
+      "params": [
+        "$!./public",
+        {
+          "maxAge": 2592000000
+        }
+      ]
+    }]
+  },
   "final": {
     "loopback#urlNotFound": {}
   },
   "final:after": {
     "strong-error-handler": {
-        "params": {
+      "params": {
         "debug": false,
         "log": false
       }

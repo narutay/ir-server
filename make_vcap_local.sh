@@ -4,7 +4,7 @@ DIR=`dirname ${0}`
 CF_MANIFEST="${DIR}/manifest.yml"
 OUT="${DIR}/server/vcap-local.json"
 
-app_name=$(grep host ${CF_MANIFEST} | awk '{print $2}')
+app_name=$(grep name: ${CF_MANIFEST} | awk '{print $3}')
 
 if [[ -z "${app_name}" ]];then
     echo "ERR: not found manifest.yml or 'host' line in manifest.yml"
@@ -16,7 +16,7 @@ vcap_services=$(LANG=C bx app env ${app_name} 2>/dev/null| sed -n '/^System-Prov
     | sed -e '/VCAP_APPLICATION/d' \
     | sed -e 's/VCAP_SERVICES/services/' \
     | sed -e '$d')
-
+echo $vcap_services
 if [[ -z "${vcap_services}" ]];then
     echo "ERR: not found VCAP_SERVICES in bx app environment"
     exit 1
