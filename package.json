@@ -15,7 +15,7 @@
     "test": "NODE_ENV=test DEBUG='irserver*' nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
-    "auth0-js": "^9.12.2",
+    "auth0-js": "^9.13.2",
     "body-parser": "^1.19.0",
     "cfenv": "^1.2.2",
     "compression": "^1.7.4",
