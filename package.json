@@ -32,7 +32,7 @@
     "jwt-decode": "^2.2.0",
     "ladda": "^1.0.6",
     "localstorage-ttl": "^1.0.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "loopback": "^3.26.0",
     "loopback-boot": "^2.28.0",
     "loopback-connector-dashdb": "^2.0.2",
